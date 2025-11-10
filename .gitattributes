@@ -5,6 +5,8 @@ frontend/client/public/* linguist-vendored
 
 # --- BACKEND (CodeIgniter 3) ---
 backend/ci3/system/* linguist-vendored
+backend/ci3/tests/* linguist-vendored
+backend/ci3/user_guide_src/* linguist-vendored
 backend/ci3/application/cache/* linguist-vendored
 backend/ci3/application/logs/* linguist-vendored
 backend/ci3/application/config/* linguist-vendored
