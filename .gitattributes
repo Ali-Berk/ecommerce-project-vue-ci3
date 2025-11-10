@@ -1,0 +1,17 @@
+# --- FRONTEND (Vue.js) ---
+frontend/client/node_modules/* linguist-vendored
+frontend/client/dist/* linguist-vendored
+frontend/client/public/* linguist-vendored
+
+# --- BACKEND (CodeIgniter 3) ---
+backend/ci3/system/* linguist-vendored
+backend/ci3/application/cache/* linguist-vendored
+backend/ci3/application/logs/* linguist-vendored
+backend/ci3/application/config/* linguist-vendored
+backend/ci3/application/third_party/* linguist-vendored
+
+# --- GENEL ---
+*.min.js linguist-vendored
+*.map linguist-vendored
+*.lock linguist-vendored
+*.log linguist-vendored
