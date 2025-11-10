@@ -1,0 +1,93 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "name": "Genç Odaları",
+      "slug": "genc-odalari",
+      "path": "/category/genc-odalari",
+      "images": [
+        "https://www.ritmikgencodasi.com.tr/idea/mh/64/myassets/products/781/2.jpg?revision=1757504615",
+        "https://www.sandalie.com/idea/dm/23/myassets/products/292/retro-genc-odasi-takimi-2.jpg?revision=1746614150"
+      ],
+      "products": [
+        { "id": 101, "name": "Genç Yatak Takımı", "image": "https://cilek.com/cdn/shop/files/Black-01_900x.jpg?v=1729150831", "price": 4500 },
+        { "id": 102, "name": "Çalışma Masası", "image": "https://cilek.com/cdn/shop/files/20.58.1112.00-03_5bdaf5c1-c2b3-46f3-aaaf-5a32393d121f_1800x1800.jpg?v=1752844314", "price": 3200 },
+        { "id": 103, "name": "Dolap Takımı", "image": "https://cilek.com/cdn/shop/files/20.58.1001.00-06_1800x1800.jpg?v=1707986496", "price": 6800 }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Bebek Odaları",
+      "slug": "bebek-odalari",
+      "path": "/category/bebek-odalari",
+      "images": [
+        "https://ideacdn.net/idea/mh/63/myassets/products/078/bella-2_min.jpg?revision=1757931477",
+        "https://www.palmera.com.tr/wp-content/uploads/2024/03/lorena-bebek-odasi-3.jpg"
+      ],
+      "products": [
+        { "id": 201, "name": "Bebek Yatak Takımı", "image": "https://cilek.com/cdn/shop/files/20.83.1306.00-02_540x.jpg?v=1747997741", "price": 4200 },
+        { "id": 202, "name": "Bebek Dolabı", "image": "https://cilek.com/cdn/shop/files/20.83.1002.00-01_540x.jpg?v=1704371240", "price": 3100 }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Yatak Odaları",
+      "slug": "yatak-odalari",
+      "path": "/category/yatak-odalari",
+      "images": [
+        "https://cilek.com/cdn/shop/collections/Lapel_1800x.jpg?v=1755778583",
+        "https://cilek.com/cdn/shop/files/20.87.1705.00-20.87.1305.00_01_1800x1800.jpg?v=1738176582"
+      ],
+      "products": [
+        { "id": 301, "name": "Modern Yatak Takımı", "image": "https://www.ritmikgencodasi.com.tr/idea/mh/64/myassets/products/781/2.jpg", "price": 7500 },
+        { "id": 302, "name": "Komodin Seti", "image": "https://www.sandalie.com/idea/dm/23/myassets/products/292/retro-genc-odasi-takimi-2.jpg", "price": 1200 },
+        { "id": 303, "name": "Gardırop", "image": "https://cilek.com/cdn/shop/files/20.21.1004.00_1800x1800.jpg?v=1726146475", "price": 5300 }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Oturma Odaları",
+      "slug": "oturma-odalari",
+      "path": "/category/oturma-odalari",
+      "images": [
+        "https://cilek.com/cdn/shop/files/ChampionRacer-01_1512x.jpg?v=1730467106",
+        "https://cilek.com/cdn/shop/files/ChampionRacer-02_1512x.jpg?v=1730467107"
+      ],
+      "products": [
+        { "id": 401, "name": "Koltuk Takımı", "image": "https://www.mobilyaal.com.tr/wp-content/uploads/2024/02/calisma-odasi-modern-tasarim.jpg", "price": 10500 },
+        { "id": 402, "name": "Sehpa", "image": "https://cdn.vivense.com/images/2023/11/28/desk-setup-2.jpg", "price": 1800 }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Mutfak Mobilyaları",
+      "slug": "mutfak-mobilyalari",
+      "path": "/category/mutfak-mobilyalari",
+      "images": [
+        "https://cilek.com/cdn/shop/files/Pirate-01_1512x.jpg?v=1727875532",
+        "https://cilek.com/cdn/shop/files/Pirate-02_1512x.jpg?v=1727875532"
+      ],
+      "products": [
+        { "id": 501, "name": "Mutfak Dolap Takımı", "image": "https://www.ritmikgencodasi.com.tr/idea/mh/64/myassets/products/781/2.jpg", "price": 15000 },
+        { "id": 502, "name": "Mutfak Masası", "image": "https://www.sandalie.com/idea/dm/23/myassets/products/292/retro-genc-odasi-takimi-2.jpg", "price": 3500 }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Çalışma Odaları",
+      "slug": "calisma-odalari",
+      "path": "/category/calisma-odalari",
+      "images": [
+        "https://cilek.com/cdn/shop/files/Pirate-03_1512x.jpg?v=1727875532",
+        "https://cilek.com/cdn/shop/files/20.21.1402.00-01_540x.jpg?v=1730463139"
+      ],
+      "products": [
+        { "id": 601, "name": "Modern Çalışma Masası", "image": "https://cilek.com/cdn/shop/products/20.50.1107.00_6_1800x1800.jpg?v=1659341627", "price": 4500 },
+        { "id": 602, "name": "Ergonomik Ofis Sandalyesi", "image": "https://cilek.com/cdn/shop/files/21.08.8513.00-06_1800x1800.jpg?v=1749026228", "price": 2750 },
+        { "id": 603, "name": "Kütüphane Raf Sistemi", "image": "https://cilek.com/cdn/shop/files/20.13.1501.00-01_1800x1800.jpg?v=1726573650", "price": 3200 },
+        { "id": 604, "name": "Minimal Çalışma Seti", "image": "https://cilek.com/cdn/shop/files/20.77.1201.00-07_1800x1800.jpg?v=1708676569", "price": 7200 },
+        { "id": 605, "name": "Ahşap Çalışma Masası", "image": "https://cilek.com/cdn/shop/files/20.58.1110.00-01_540x.jpg?v=1742461406", "price": 3900 }
+      ]
+    }
+  ]
+}
