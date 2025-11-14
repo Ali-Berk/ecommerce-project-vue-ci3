@@ -101,6 +101,8 @@ class Api extends CI_Controller {
     }
 
     public function signin(){
+        $this->load->library('email');
+        
         $_POST = $this->JSON_DATA;
         $this->form_validation->set_rules('name', 'Ad Soyad','required|min_length[3]');
         $this->form_validation->set_rules('mail', 'E-Posta','required|valid_email');
@@ -112,19 +114,57 @@ class Api extends CI_Controller {
                 'status' => 'error',
                 'message' => strip_tags(validation_errors())
             ]);
-            var_dump($this->JSON_DATA);
             return;
         }
 
-        $user = [
-            'name'     => $this->input->post('name', TRUE),
-            'mail'     => $this->input->post('mail', TRUE),
-            'password' => $this->input->post('password', TRUE),
-            'address'  => $this->input->post('address', TRUE),
-        ];
+        $token = bin2hex(random_bytes(16));
+            $user = [
+                'name'     => $this->input->post('name', TRUE),
+                'mail'     => $this->input->post('mail', TRUE),
+                'password' => $this->input->post('password', TRUE),
+                'address'  => $this->input->post('address', TRUE),
+                'token' => $token,
+                'is_verified' => 0,
+            ];
+            
+            $this->DbModel->signin($user);
 
-        $this->DbModel->signin($user);
+            $verificationLink = "http://localhost:8080/api/verifyUser?token=".$token;
+            $this->email->from('lol.oynayabilirmiyimltfn@gmail.com', 'Kara Üzüm Mobilya');
+            $this->email->to('aertemur1@gmail.com');
+            $this->email->subject('E-Posta Testi');
+            $this->email->message('
+                <h3>E-Posta Doğrulama</h3><br>
+                    <p>Hesabınızı doğrulamak için aşağıdaki bağlantıya tıklayın:</p><br>
+                        <a href="' . $verificationLink . '">' . $verificationLink . '</a>
+            ');
+            
+            if($this->email->send()){
+            echo 'Doğrulama E-Postası başarıyla gönderildi.';
+        }
+        else{
+            echo 'E-Posta gönderilemedi.';
+            echo $this->email->print_debugger(['headers']);
+        }
+    }
+
+    public function verifyUser(){
+        $token = $this->input->get('token');
+
+        if(!$token){
+            echo "Token bulunmadı.";
+            return;
+        }
+
+        $user = $this->DbModel->getUserByToken($token);
+
+        if(!$user){
+            echo "Geçersiz veya süresi dolmuş doğrulama bağlantısı.";
+            return;
+        }
         
+        $this->DbModel->verifyUser($token);
+        echo "<h2>E-Postanız başarıyla doğrulandı!</h2>";
     }
 
     public function checkLogin(){
@@ -290,5 +330,21 @@ class Api extends CI_Controller {
         else{
             echo "başarısız";
         }
+    }
+    public function send_mail(){
+        $this->load->library('email');
+        
+        $this->email->from('lol.oynayabilirmiyimltfn@gmail.com', 'Kara Üzüm Mobilya');
+        $this->email->to('aertemur1@gmail.com');
+        $this->email->subject('E-Posta Testi');
+        $this->email->message('<h3>Codeigniter mail entegrasyonu testi</h3><br><p>Bu bir test mesajıdır.</p>');
+        if($this->email->send()){
+            echo 'E-Posta başarıyla gönderildi.';
+        }
+        else{
+            echo 'E-Posta gönderilemedi.';
+            echo $this->email->print_debugger(['headers']);
+        }
+        
     }
 }

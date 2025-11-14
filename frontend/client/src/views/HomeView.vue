@@ -162,7 +162,7 @@
         <div 
         v-for="(item) in ProductStore.products.slice(0,3)" 
         :key="item.product_id" 
-        class="col-lg-4 col-md-4 col-sm-6"
+        class="col-lg-4 col-md-6 col-sm-6"
         >
         <div class="card product-card h-100 shadow-sm">
           <div class="product-img-wrapper">
@@ -366,10 +366,11 @@ hr {
 }
 
 .seeAll{
-  font-size: 1.6em;
+  font-size: 1.5em;
   font-family:'Courier New', Courier, monospace;
   color: #383636;
   position: relative;
+  display: block;
 }
 
 .seeAll::after{

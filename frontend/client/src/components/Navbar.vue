@@ -1,74 +1,60 @@
 <template>
   <section class="container">
+  <nav class="navbar navbar-expand-lg navbar-light bg-white position-sticky top-0 w-100 shadow-sm" style="z-index:10;">
+  <div class="container-fluid">
+    <router-link class="navbar-brand" to="/">
+      <img
+        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRp1taFhqxRZgLBXogJjDHfzb7OzR2W53VTmw&s"
+        alt="Logo"
+        style="height:50px; object-fit:contain;">
+    </router-link>
 
-    <nav class="navbar navbar-expand-lg navbar-light w-100 mb-0 position-relative">
-      <div class="container-fluid">
-        <router-link class="navbar-brand" to="/">
-          <img
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRp1taFhqxRZgLBXogJjDHfzb7OzR2W53VTmw&s"
-          alt="Logo"
-          style="height:50px; object-fit:contain;">
-        </router-link>
-        
-        <!-- Menü -->
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3">
-          <li class="nav-item" v-for="(item, index) in category" :key="index">
-            <router-link class="nav-link" :to="item.path">{{ item.name }}</router-link>
-          </li>
-        </ul>
-      </div>
-      <div class="d-flex gap-3 align-items-center">
-        <router-link class="nav-link" to="/login" v-if="!user.name"><i class="bi bi-person"></i></router-link>
+    <div class="d-flex gap-3 align-items-center order-lg-2">
+      <router-link class="nav-link" to="/login" v-if="!user.name"><i class="bi bi-person"></i></router-link>
+
       <div v-if="user.name" class="dropdown">
-        <button
-        class="btn btn-link nav-link p-0 dropdown-toggle"
-        type="button"
-        id="userDropdown"
-        data-bs-toggle="dropdown"
-        aria-expanded="false">
+        <button class="btn btn-link nav-link p-0 dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
           <i class="bi bi-person fs-5"></i>
         </button>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
           <li><router-link class="dropdown-item" to="/profile">Profil</router-link></li>
           <li><router-link class="dropdown-item" to="/orders">Siparişlerim</router-link></li>
           <li><router-link class="dropdown-item" to="/settings">Ayarlar</router-link></li>
-          <li v-if="user.role == 1" ><hr class="dropdown-divider"></li>
-          <li v-if="user.role == 1" ><router-link class="dropdown-item" to="/dashboard">Dashboard</router-link></li>
-          <li v-if="user.role == 1" ><router-link class="dropdown-item" to="/dashboard/products">Ürünler</router-link></li>
-          <li v-if="user.role == 1" ><router-link class="dropdown-item" to="/dashboard/orders">Siparişler</router-link></li>
-          <li v-if="user.role == 1" ><router-link class="dropdown-item" to="/dashboard/meta">Meta</router-link></li>
-
+          <li v-if="user.role == 1"><hr class="dropdown-divider"></li>
+          <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard">Dashboard</router-link></li>
+          <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard/products">Ürünler</router-link></li>
+          <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard/orders">Siparişler</router-link></li>
+          <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard/meta">Meta</router-link></li>
           <li><hr class="dropdown-divider"></li>
           <li><button class="dropdown-item" @click="logout">Çıkış Yap</button></li>
         </ul>
       </div>
-        <button class="btn btn-link nav-link p-0" @click="toggleSearchBar">
-          <i class="bi bi-search fs-5"></i>
-        </button>
-        
-        <button
-        class="btn btn-link nav-link p-0"
-        type="button"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#cartOffcanvas"
-        aria-controls="cartOffcanvas">
+
+      <button class="btn btn-link nav-link p-0" @click="toggleSearchBar">
+        <i class="bi bi-search fs-5"></i>
+      </button>
+
+      <button class="btn btn-link nav-link p-0" type="button" data-bs-toggle="offcanvas"
+        data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas">
         <i class="bi bi-cart2 fs-5"></i>
       </button>
-    </div>
-    
-    <button
-    class="navbar-toggler"
-    type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation">
+
+      <button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse"
+        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+        aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
     </div>
-  </nav>
+
+    <div class="collapse navbar-collapse mt-3 mt-lg-0 order-lg-1" id="navbarSupportedContent">
+      <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 text-center">
+        <li class="nav-item" v-for="(item, index) in category" :key="index">
+          <router-link class="nav-link" :to="item.path">{{ item.name }}</router-link>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
   
   <transition name="slide-down">
     <div v-if="searchActive" class="searchbar-container">

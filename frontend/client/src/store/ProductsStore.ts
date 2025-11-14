@@ -4,8 +4,8 @@ import axios from "axios";
 export const useProductStore = defineStore('Products', {
     state: () => ({
         status:'error',
-        products:[{product_id:1,title:"err",thumbnail:"https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",price:1}],
-        categories:[{category_id:0,category_name:"placeholder"}]
+        products:[{product_id:1,title:"err",category:"err",thumbnail:"https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",price:1}],
+        categories:[{category_id:0,category_name:"placeholder",categorySlug:"placeholder"}]
 
     }),
 

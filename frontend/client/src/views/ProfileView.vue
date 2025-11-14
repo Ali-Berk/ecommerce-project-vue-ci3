@@ -26,7 +26,7 @@
         <div class="card border-0 shadow-sm rounded-3 p-4 bg-white">
           <div class="d-flex header align-items-center mb-3">
             <h2 class="fw-semibold mb-0">Kişisel Bilgiler</h2>
-            <router-link class="btn btn-success px-4 py-2">Düzenle</router-link>
+            <router-link class="btn btn-primary px-4 py-2" to="/settings" >Düzenle</router-link>
           </div>
           <hr class="my-3">
 
@@ -55,15 +55,15 @@
 </template>
 
 <script>
-  export default {
-    name: "ProfileView",
-    props: ['user']
-    }
+export default {
+  name: "ProfileView",
+  props: ['user']
+}
 </script>
 
 <style scoped>
 .left-panel {
-  min-height: 100vh;
+  min-height: 92vh;
   border-radius: 0 12px 12px 0;
 }
 
@@ -128,5 +128,62 @@ p {
   box-shadow: 0 0 4px rgba(0,123,255,0.4);
   outline: none;
 }
-</style>
 
+/* RESPONSIVE STYLING */
+@media (max-width: 992px) {
+  .left-panel {
+    width: 100%;
+    min-height: auto;
+    border-radius: 0;
+  }
+  .profile-container {
+    width: 100%;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-frontend {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .profile-img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .nameMail h2, .nameMail p {
+    margin: 0;
+  }
+
+  .personal-information .row.g-4 {
+    flex-direction: column;
+  }
+
+  .personal-information .col-md-6 {
+    width: 100%;
+  }
+
+  .searchbar-container input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .profile-container {
+    padding: 0.5rem;
+  }
+
+  .personal-information .card {
+    padding: 1rem;
+  }
+
+  .nav-link {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+  }
+}
+</style>

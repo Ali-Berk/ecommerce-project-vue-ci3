@@ -3,7 +3,7 @@
     <div class="carousel-inner">
       <div v-for="(categories, cIndex) in category" :key="categories.category">
         <div v-for="(img, iIndex) in categories.images" :key="iIndex" :class="['carousel-item', { active: cIndex === 0 && iIndex === 0 }]">
-          <img :src="img" class="d-block w-100 hero-img" alt="Kategori Görseli">
+          <img :src="img" class="d-block w-100 hero-img" height="650px" alt="Kategori Görseli">
         </div>
       </div>
     </div>

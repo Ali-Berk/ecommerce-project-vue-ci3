@@ -1,9 +1,9 @@
 <template>
   <section class="container my-4">
-    <h1 class="mb-4">{{ $route.params.slug }}</h1>
+    <h1 class="mb-4">{{ category_name }}</h1>
     <div v-if="ProductStore.status == 'success'" class="row g-4">
       <div 
-        v-for="(product, index) in ProductStore.products" 
+        v-for="(product, index) in Selectedproducts" 
         :key="index" 
         class="col-lg-3 col-md-4 col-sm-6"
       >
@@ -41,34 +41,38 @@ export default defineComponent({
   prop:['category'],
   data() {
     return {
+      Selectedproducts:[{product_id:1,title:"err",category:"err",thumbnail:"https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",price:1}],
+      category_name: '' as string | undefined,
     }
   },
   computed:{
-     ProductStore(){
+    ProductStore(){
       return useProductStore();
+    },
+  },
+  
+watch: {
+  '$route.params.slug': {
+    handler(newVal) {
+      console.log("Route değişti:", newVal);
+      const category = this.ProductStore.categories.find(c => c.categorySlug == newVal);
+      this.category_name = category?.category_name;
+      console.log(category);
+      this.Selectedproducts = this.ProductStore.products.filter(c => (c.category == category?.category_name));
     }
-  },
+  }
+},
+
+
   mounted(){
-    this.loadData();
     this.ProductStore.loadCategory();
-  },
-  watch:{
-    "$route.params.slug"(){
-      this.loadData();
-    } 
+      const category = this.ProductStore.categories.find(c => c.categorySlug == this.$route.params.slug);
+      this.category_name = category?.category_name;
+      console.log(category);
+      this.Selectedproducts = this.ProductStore.products.filter(c => (c.category == category?.category_name));
   },
   methods:{
-    async loadData(){
-      try{
-        const res = await fetch("/db.json");
-        const data = await res.json();
-        const slug = this.$route.params.slug;
-        // this.category = data.categories.find((c:any) => c.slug === slug);
-      } catch(err){
-        console.error("Veri alınamadı", err);
-      }
-      
-    }
+    
   }
 });
 </script>

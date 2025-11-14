@@ -183,4 +183,17 @@ public function updateProduct($id, $data = array())
 {
     return $this->db->where('product_id', $id)->update($this->tableProducts,$data);
 }
+
+public function getUserByToken($token){
+    return $this->db->where('token', $token)->get($this->tableUsers)->row();
+}
+
+public function verifyUser($token){
+    $data=[
+        'is_verified' => 1,
+        'token' => null,
+    ];
+    return $this->db->where('token', $token)->update($this->tableUsers, $data);
+
+}
 }
