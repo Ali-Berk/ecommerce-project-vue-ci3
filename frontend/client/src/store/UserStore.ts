@@ -4,7 +4,8 @@ import axios from "axios";
 export const useUserStore = defineStore('User',{
     state: () => ({
         status:"undefined",
-        user:{}
+        user:{} as any,
+        cart:[] as any[]
     }),
     actions:{
         authVerify() {
@@ -24,6 +25,23 @@ export const useUserStore = defineStore('User',{
         sessionDestroy(){
             this.user = {};
         },
+        addToCart(product:any){
+            const item = this.cart.find(p => p.product_id == product.product_id);
+            
+            if(item){
+                item.qty++;
+            }
+            else{
+
+                this.cart.push({
+                    product_id:product.product_id,
+                    title:product.title,
+                    price:product.price,
+                    thumbnail:product.thumbnail,
+                    qty:1
+                });
+            }
+        }
     }
 
 })

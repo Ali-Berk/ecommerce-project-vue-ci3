@@ -20,6 +20,8 @@
         <option value="">Tüm Stoklar</option>
         <option value="in">Stokta</option>
         <option value="out">Stokta Yok</option>
+        <option value="yes">Yayında</option>
+        <option value="no">Yayında değil</option>
       </select>
     </div>
 
@@ -51,8 +53,8 @@
           <td>{{ p.category }}</td>
           <td>{{ p.price }} ₺</td>
           <td>
-            <span :class="p.stock > 0 ? 'text-success' : 'text-danger'">
-              {{ p.stock > 0 ? "Stokta" : "Tükendi" }}
+            <span :class="p.active == '1' ? (p.stock > 0 ? 'text-success' : 'text-danger') : 'text-warning'">
+              {{ p.active == "1" ? (p.stock > 0 ? "Stokta" : "Tükendi") : "Pasif"}}
             </span>
           </td>
           <td>
@@ -114,7 +116,19 @@ export default {
             : stockFilter.value === "out"
             ? p.stock <= 0
             : true;
-        return matchTitle && matchCategory && matchStock;
+        const active =
+        stockFilter.value === "yes"
+        ? p.active == true
+        : stockFilter.value === "yes"
+        ? p.active == false
+        : true;
+
+        const notactive =
+          stockFilter.value === "no"
+          ? p.active == false
+          : true;
+
+        return matchTitle && matchCategory && matchStock && active && notactive;
       })
     );
 

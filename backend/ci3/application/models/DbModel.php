@@ -25,11 +25,10 @@ class DbModel extends CI_Model {
     public function get_all(){
         $products = $this->db->get($this->tableProducts)->result_array();
         foreach ($products as &$product) {
-            // Kategori adını al
             $this->db->where('category_id', $product['category_fk']);
             $category = $this->db->get($this->tableCategories)->row_array();
             $product['category'] = $category ? $category['category_name'] : null;
-            // category_fk'yı kaldır
+            $product['images'] = $this->db->where('product_fk',$product['product_id'])->get($this->tableProducts_Images)->result_array();
             unset($product['category_fk']);
         }
         return json_encode($products);
@@ -140,7 +139,7 @@ class DbModel extends CI_Model {
 
 public function get_orders($id){
     $this->db->select('orders.order_id, orders.user_fk, orders.order_address, orders.status, 
-        GROUP_CONCAT(products.title) AS product_titles, SUM(products.price) AS total_price');
+        GROUP_CONCAT(products.title) AS product_titles, orders.price AS total_price');
     $this->db->from($this->tableOrders);
     $this->db->join($this->tableOrder_Items, 'order_items.order_fk = orders.order_id', 'left');
     $this->db->join($this->tableProducts, 'products.product_id = order_items.product_fk', 'left');
@@ -194,6 +193,38 @@ public function verifyUser($token){
         'token' => null,
     ];
     return $this->db->where('token', $token)->update($this->tableUsers, $data);
-
 }
+
+public function createOrder($user,$items,$total){
+     $orderData = [
+        'user_fk' => $user['user_id'], 
+        'order_address' => $user['address'],
+        'price' => $total,
+        'status' => 'pending', 
+        'order_mail' => $user['mail'],
+        'order_name' => $user['name']
+    ];
+
+    $this->db->insert($this->tableOrders, $orderData);
+    $order_id = $this->db->insert_id();
+    foreach($items as $item){
+        $orderItems = [
+            'order_fk' => $order_id,
+            'product_fk' => $item['product_id'],
+            'qty' => $item['qty'],
+        ];
+        $this->db->insert($this->tableOrder_Items, $orderItems);
+    }
+}
+
+    public function createGuestAccount($userData){
+        return $this->db->insert($this->tableUsers, $userData);
+    }
+
+    public function AddProductImages($data,$product_id){
+        $data["product_fk"] = $product_id;
+        var_dump($data);
+        return $this->db->insert($this->tableProducts_Images, $data);
+
+    }
 }

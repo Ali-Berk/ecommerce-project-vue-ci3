@@ -1,114 +1,155 @@
+<!-- components/NavbarComponent.vue -->
 <template>
   <section class="container">
-  <nav class="navbar navbar-expand-lg navbar-light bg-white position-sticky top-0 w-100 shadow-sm" style="z-index:10;">
-  <div class="container-fluid">
-    <router-link class="navbar-brand" to="/">
-      <img
-        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRp1taFhqxRZgLBXogJjDHfzb7OzR2W53VTmw&s"
-        alt="Logo"
-        style="height:50px; object-fit:contain;">
-    </router-link>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white position-sticky top-0 w-100 shadow-sm" style="z-index:10;">
+      <div class="container-fluid">
+        <router-link class="navbar-brand" to="/">
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRp1taFhqxRZgLBXogJjDHfzb7OzR2W53VTmw&s"
+            alt="Logo"
+            style="height:50px; object-fit:contain;">
+        </router-link>
 
-    <div class="d-flex gap-3 align-items-center order-lg-2">
-      <router-link class="nav-link" to="/login" v-if="!user.name"><i class="bi bi-person"></i></router-link>
+        <div class="d-flex gap-3 align-items-center order-lg-2">
+          <router-link class="nav-link" to="/login" v-if="!user.name">
+            <i class="bi bi-person"></i>
+          </router-link>
 
-      <div v-if="user.name" class="dropdown">
-        <button class="btn btn-link nav-link p-0 dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
-          <i class="bi bi-person fs-5"></i>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-          <li><router-link class="dropdown-item" to="/profile">Profil</router-link></li>
-          <li><router-link class="dropdown-item" to="/orders">Siparişlerim</router-link></li>
-          <li><router-link class="dropdown-item" to="/settings">Ayarlar</router-link></li>
-          <li v-if="user.role == 1"><hr class="dropdown-divider"></li>
-          <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard">Dashboard</router-link></li>
-          <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard/products">Ürünler</router-link></li>
-          <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard/orders">Siparişler</router-link></li>
-          <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard/meta">Meta</router-link></li>
-          <li><hr class="dropdown-divider"></li>
-          <li><button class="dropdown-item" @click="logout">Çıkış Yap</button></li>
-        </ul>
+          <div v-if="user.name" class="dropdown">
+            <button class="btn btn-link nav-link p-0 dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+              <i class="bi bi-person fs-5"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li><router-link class="dropdown-item" to="/profile">Profil</router-link></li>
+              <li><router-link class="dropdown-item" to="/orders">Siparişlerim</router-link></li>
+              <li><router-link class="dropdown-item" to="/settings">Ayarlar</router-link></li>
+              <li v-if="user.role == 1"><hr class="dropdown-divider"></li>
+              <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard">Dashboard</router-link></li>
+              <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard/products">Ürünler</router-link></li>
+              <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard/orders">Siparişler</router-link></li>
+              <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard/meta">Meta</router-link></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><button class="dropdown-item" @click="logout">Çıkış Yap</button></li>
+            </ul>
+          </div>
+
+          <button class="btn btn-link nav-link p-0" @click="toggleSearchBar">
+            <i class="bi bi-search fs-5"></i>
+          </button>
+
+          <button class="btn btn-link nav-link p-0" type="button" data-bs-toggle="offcanvas"
+            data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas">
+            <i class="bi bi-cart2 fs-5"></i>
+          </button>
+
+          <button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+
+        <div class="collapse navbar-collapse mt-3 mt-lg-0 order-lg-1" id="navbarSupportedContent">
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 text-center">
+            <li class="nav-item" v-for="(item, index) in category" :key="index">
+              <router-link class="nav-link" :to="item.path">{{ item.name }}</router-link>
+            </li>
+          </ul>
+        </div>
       </div>
+    </nav>
 
-      <button class="btn btn-link nav-link p-0" @click="toggleSearchBar">
-        <i class="bi bi-search fs-5"></i>
-      </button>
-
-      <button class="btn btn-link nav-link p-0" type="button" data-bs-toggle="offcanvas"
-        data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas">
-        <i class="bi bi-cart2 fs-5"></i>
-      </button>
-
-      <button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse"
-        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-        aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-    </div>
-
-    <div class="collapse navbar-collapse mt-3 mt-lg-0 order-lg-1" id="navbarSupportedContent">
-      <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 text-center">
-        <li class="nav-item" v-for="(item, index) in category" :key="index">
-          <router-link class="nav-link" :to="item.path">{{ item.name }}</router-link>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-  
-  <transition name="slide-down">
-    <div v-if="searchActive" class="searchbar-container">
-      <div class="container-fluid d-flex align-items-center justify-content-between">
-        <input
-        type="text"
-        class="form-control form-control-lg border-0 flex-grow-1 me-3"
-        placeholder="Aramak istediğiniz ürünü yazın..."
-        v-model="searchQuery"
-        />
-        <button class="btn btn-outline-secondary" @click="toggleSearchBar">
-          <i class="bi bi-x-lg"></i>
-        </button>
+    <!-- Arama çubuğu -->
+    <transition name="slide-down">
+      <div v-if="searchActive" class="searchbar-container">
+        <div class="container-fluid d-flex align-items-center justify-content-between">
+          <input
+            type="text"
+            class="form-control form-control-lg border-0 flex-grow-1 me-3"
+            placeholder="Aramak istediğiniz ürünü yazın..."
+            v-model="searchQuery"
+          />
+          <button class="btn btn-outline-secondary" @click="toggleSearchBar">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
       </div>
-    </div>
-  </transition>
-  
-  <div
-    class="offcanvas offcanvas-end"
-    tabindex="-1"
-    id="cartOffcanvas"
-    aria-labelledby="cartOffcanvasLabel"
-    data-bs-backdrop="true"
-    data-bs-scroll="false">
-    <div class="offcanvas-header">
-      <h5 id="cartOffcanvasLabel">Sepetim</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Kapat"></button>
-    </div>
-    <div class="offcanvas-body">
-      <p>Sepetiniz şu anda boş.</p>
-    </div>
-  </div>
-</section>
+    </transition>
+
+    <!-- Sepet Offcanvas -->
+    <div
+      class="offcanvas offcanvas-end"
+      tabindex="-1"
+      id="cartOffcanvas"
+      aria-labelledby="cartOffcanvasLabel"
+      data-bs-backdrop="true"
+      data-bs-scroll="false"
+    >
+      <div class="offcanvas-header">
+        <h5 id="cartOffcanvasLabel">Sepetim</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Kapat"></button>
+      </div>
+      <div class="offcanvas-body d-flex flex-column justify-content-between" style="height:100%;">
+        <div>
+          <div v-if="UserStore.cart.length === 0">
+            <p>Sepetiniz şu anda boş.</p>
+          </div>
+          <div v-else>
+            <div v-for="item in UserStore.cart" :key="item.id" class="d-flex justify-content-between align-items-center mb-3">
+              <img :src="item.thumbnail" alt="Ürün" style="width:50px; height:50px; object-fit:cover;">
+              <div class="flex-grow-1 ms-2 d-flex flex-column">
+                <p class="mb-0">{{ item.title }}</p>
+                <small>{{ item.price }} TL</small>
+                <div class="d-flex align-items-center mt-1 qty-input-wrapper">
+                  <button class="btn btn-outline-secondary btn-sm" @click="item.qty = Math.max(1, item.qty - 1)">-</button>
+                  <input type="number" v-model.number="item.qty" min="1" class="form-control form-control-sm text-center mx-1" style="width:60px;">
+                  <button class="btn btn-outline-secondary btn-sm" @click="item.qty += 1">+</button>
+                </div>
+            </div>
+            <div>
+              <strong>{{ item.qty * item.price }} TL</strong>
+            </div>
+          </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Butonlar -->
+        <div class="mt-3 d-flex gap-2">
+          <router-link to="/cart" class="btn btn-primary flex-grow-1">Sepete Git</router-link>
+          <router-link to="/checkout" class="btn btn-success flex-grow-1">Alışverişi Tamamla</router-link>
+        </div>
+      </div>
+  </section>
 </template>
 
 <script>
 import axios from 'axios';
+import { useUserStore } from '../store/UserStore';
 
 export default {
   name: 'NavbarComponent',
-  props: ['category','user'],
+  props: ['category', 'user'],
   data() {
     return {
       searchActive: false,
       searchQuery: '',
     };
   },
+  computed: {
+    UserStore() {
+      return useUserStore();
+    }
+  },
   methods: {
     toggleSearchBar() {
       this.searchActive = !this.searchActive;
     },
-    logout(){
+    logout() {
       axios.get('http://localhost:8080/api/logout', { withCredentials: true })
-      .catch(err => console.log(err)).then(location.reload());
+        .catch(err => console.log(err))
+        .then(() => location.reload());
     }
   },
   mounted() {

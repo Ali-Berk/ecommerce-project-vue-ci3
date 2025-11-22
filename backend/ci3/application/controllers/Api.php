@@ -28,7 +28,6 @@ class Api extends CI_Controller {
     public function get_all_data()
     {
         echo $this->DbModel->get_all();
-        
     }
 
     public function save()
@@ -247,8 +246,8 @@ class Api extends CI_Controller {
 
     public function orders(){
         
-    if($this->session->userdata('user'))
-    {
+        if($this->session->userdata('user'))
+        {
             $user = $this->session->userdata('user');
             $user_id = $user['user_id'];
             $orders = $this->DbModel->get_orders($user_id);
@@ -257,14 +256,15 @@ class Api extends CI_Controller {
                 'status' => 'success',
                 'order' => $orders
             ]);
-    }
-    else{
-        echo json_encode([
+        }
+        else{
+            echo json_encode([
                 'status' => 'error',
                 'message' => 'User boş'
             ]);
+        }
     }
-}
+
     public function get_all_orders(){
         $orders = $this->DbModel->get_all_orders();
         echo json_encode([
@@ -321,11 +321,12 @@ class Api extends CI_Controller {
 
     public function update_product($product_id){
         $data = $this->JSON_DATA;
+        unset($data["newImage"]);
+        unset($data["images"]);
+        var_dump($data);
         if($data)
         {
             $this->DbModel->updateProduct($product_id, $data);
-            echo "başarılı";
-            var_dump($data);
         }
         else{
             echo "başarısız";
@@ -346,5 +347,42 @@ class Api extends CI_Controller {
             echo $this->email->print_debugger(['headers']);
         }
         
+    }
+
+    public function createOrder(){
+        $customerData = $this->JSON_DATA['customer'];
+        $itemsData = $this->JSON_DATA['items'];
+        $totalPriceData = $this->JSON_DATA['total'];
+        var_dump($customerData);
+        if($this->session->userdata('user')){
+            $customerData['user_id'] = $this->session->userdata('user')['user_id'];
+            $this->DbModel->createOrder($customerData,$itemsData,$totalPriceData);
+        }
+        else{
+            $customerData['user_id'] = 7;
+            var_dump($customerData);
+            // $this->guestAccount($customerData);
+            $this->DbModel->createOrder($customerData,$itemsData,$totalPriceData);
+        }
+        var_dump($itemsData);
+
+    }
+
+    public function guestAccount($customerData){
+        $this->DbModel->createGuestAccount($customerData);
+    }
+
+    public function AddProductImages($product_id){
+        $data = $this->JSON_DATA["newImage"];
+        var_dump($data);
+        if(!empty($data['image_url']))
+        {
+            return $this->DbModel->AddProductImages($data,$product_id);
+        }
+        else{
+            echo json_encode([  "status" => "error",
+                                "message" => "Boş bir resim yüklenemez."
+                            ]);
+        }
     }
 }

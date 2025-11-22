@@ -177,19 +177,21 @@
             <p class="card-text text-muted mb-3">{{ item.price }} TL</p>
             <div class="d-flex justify-items-between gap-2">
               <router-link class="btn btn-primary flex-grow-2" :to="'product/'+item.product_id">Hızlı Bakış</router-link>
-              <button class="btn btn-success mt-auto flex-grow-1">Sepete Ekle</button>
+              <button class="btn btn-success mt-auto flex-grow-1" @click="UserStore.addToCart(item)">Sepete Ekle</button>
             </div>
           </div>
         </div>
       </div>
     </div>
   </section>
+  {{ UserStore.cart }}
 </section>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { useProductStore } from '../store/ProductsStore';
+import { useUserStore } from '../store/UserStore';
 
 export default defineComponent(
 {
@@ -201,6 +203,9 @@ export default defineComponent(
   computed:{
     ProductStore(){
       return useProductStore();
+    },
+    UserStore(){
+      return useUserStore();
     }
   },
   mounted(){

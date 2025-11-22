@@ -4,7 +4,7 @@ import axios from "axios";
 export const useProductStore = defineStore('Products', {
     state: () => ({
         status:'error',
-        products:[{product_id:1,title:"err",category:"err",thumbnail:"https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",price:1}],
+        products:[{product_id:1,title:"err",category:"err",thumbnail:"https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",price:1,images:[]}],
         categories:[{category_id:0,category_name:"placeholder",categorySlug:"placeholder"}]
 
     }),
@@ -20,7 +20,7 @@ export const useProductStore = defineStore('Products', {
             .finally(() => this.status = 'success');
         },
 
-        async updateProduct(data: { product_id: number; title: string; thumbnail: string; price: number; category:string; category_fk:any;}){
+        async updateProduct(data: { product_id: number; title: string; thumbnail: string; price: number; category:string; category_fk:any; images:[];newImage:{image_url:string,alt_text:string}}){
             try{
                 data.category_fk = this.categories.find(c => c.category_name === data.category)?.category_id ?? null;
                 delete (data as any).category;
@@ -30,11 +30,16 @@ export const useProductStore = defineStore('Products', {
 
                 const index = this.products.findIndex(p => p.product_id === data.product_id);
                 if(index !== -1) this.products[index] = data;
+                console.log(data.newImage);
+                const imageData = {newImage:data.newImage};
+                if(Object.keys(imageData.newImage.image_url).length > 0){
+                    await axios.post(`http://localhost:8080/api/addProductImages/${data.product_id}`, imageData);
+                }
             }
             catch(err)
             {
                 console.log(err);
             }
-        }
+        },
     }
 })

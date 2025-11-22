@@ -18,7 +18,7 @@
           <div class="card-body d-flex flex-column">
             <h5 class="card-title">{{ product.title }}</h5>
             <p class="card-text text-muted mb-3">{{ product.price }} TL</p>
-            <button class="btn btn-success mt-auto">Sepete Ekle</button>
+            <button class="btn btn-success mt-auto" @click="UserStore.addToCart(product)">Sepete Ekle</button>
             <router-link class="btn btn-primary flex-grow-2" :to="{name: 'ProductDetails', params:{slug: product.product_id}}">Hızlı Bakış</router-link>
 
           </div>
@@ -33,6 +33,7 @@
 </template>
 
 <script lang="ts">
+import { useUserStore } from '../store/UserStore';
 import { useProductStore } from '../store/ProductsStore';
 import { defineComponent } from 'vue';
 
@@ -49,6 +50,9 @@ export default defineComponent({
     ProductStore(){
       return useProductStore();
     },
+    UserStore(){
+      return useUserStore();
+    }
   },
   
 watch: {
