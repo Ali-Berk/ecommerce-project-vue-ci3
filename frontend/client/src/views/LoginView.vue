@@ -61,16 +61,22 @@ export default {
   methods: {
     async handleLogin() {
       this.submitted = true;
-
-      if (!this.email || !this.password) {
-        return; 
+      let response;
+      try{
+        if (!this.email || !this.password) {
+          return; 
+        }
+        const {data} = await axios.post('http://localhost:8080/api/login',{
+          mail: this.email,
+          password: this.password
+        }, {withCredentials:true} );
+        response = data
       }
-      const {data} = await axios.post('http://localhost:8080/api/login',{
-        mail: this.email,
-        password: this.password
-      }, {withCredentials:true} )
-      console.log(data);
-      if(data.status == "success") {
+      catch{
+        response = {'status':'error','message':'Çok Fazla İstek Atıldı.'};
+        alert("Çok Fazla İstek Gönderdiniz. Daha Sonra Tekrar Deneyiniz.");
+      }
+      if(response?.status == "success") {
         this.$router.push('/');
         window.dispatchEvent(new CustomEvent('session-created'))
       }

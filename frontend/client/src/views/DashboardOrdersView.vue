@@ -28,7 +28,7 @@
       <tbody>
         <tr v-for="o in filteredOrders" :key="o.order_id">
           <td>{{ o.order_id }}</td>
-          <td>{{ o.user_name }}</td>
+          <td>{{ o.name }}</td>
           <td>{{ o.price }} ₺</td>
           <td>{{ o.order_address }}</td>
           <td>

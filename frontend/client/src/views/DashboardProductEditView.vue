@@ -9,13 +9,11 @@
 
         <form v-if="loaded" @submit.prevent="updateProduct" class="row g-4">
 
-          <!-- Başlık -->
           <div class="col-12">
             <label class="form-label fw-medium">Başlık</label>
             <input v-model="form.title" type="text" class="form-control form-control-lg" required />
           </div>
 
-          <!-- Fiyat, kategori, stok -->
           <div class="col-md-4">
             <label class="form-label fw-medium">Fiyat (₺)</label>
             <input v-model.number="form.price" type="number" step="0.01" class="form-control" required />
@@ -65,7 +63,7 @@
             <div
               v-for="image in form.images"
               :key="image.image_id"
-              class="p-3 border rounded mb-3 bg-light"
+              class="image-box p-3 border rounded mb-3 bg-light"
             >
               <div class="row g-3">
                 <div class="col-md-3 d-flex align-items-center justify-content-center">
@@ -84,6 +82,7 @@
                   <label class="form-label">Alt Yazı</label>
                   <input type="text" v-model="image.alt_text" class="form-control" />
                 </div>
+                <button @click="deleteImage(image.image_id)" type="button" class="image-box-item btn btn-danger">Resmi Sil</button>
               </div>
             </div>
 
@@ -176,7 +175,8 @@ function loadProductFromStore() {
 async function updateProduct() {
   loading.value = true
   try {
-    await store.updateProduct({ ...form })
+    const clonedData = JSON.parse(JSON.stringify(form));
+    await store.updateProduct(clonedData);
     messageType.value = 'alert-success'
     message.value = 'Ürün başarıyla güncellendi.'
   } catch (err) {
@@ -189,5 +189,24 @@ async function updateProduct() {
 
 }
 
+async function deleteImage(image_id) {
+  store.deleteProductImage(this.route.params.slug ,image_id);
+}
+
 onMounted(loadProductFromStore)
 </script>
+
+
+<style scoped>
+  .image-box{
+    position:relative;
+  }
+
+  .image-box-item{
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    width: 20%;
+    padding: 6px;
+  }
+</style>

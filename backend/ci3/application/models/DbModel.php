@@ -21,46 +21,47 @@ class DbModel extends CI_Model {
         $this->tableCategories = 'categories';
 
     }
-
+	
     public function get_all(){
-        $products = $this->db->get($this->tableProducts)->result_array();
-        foreach ($products as &$product) {
-            $this->db->where('category_id', $product['category_fk']);
-            $category = $this->db->get($this->tableCategories)->row_array();
-            $product['category'] = $category ? $category['category_name'] : null;
-            $product['images'] = $this->db->where('product_fk',$product['product_id'])->get($this->tableProducts_Images)->result_array();
-            unset($product['category_fk']);
-        }
-        return json_encode($products);
-    }
+		$raw = $this->db->select('products.*, categories.category_name as category, product_images.image_url, product_images.alt_text')
+	    ->from($this->tableProducts)
+    	->join($this->tableCategories, 'categories.category_id = products.category_fk', 'left')
+    	->join($this->tableProducts_Images, 'products.product_id = product_images.product_fk', 'left')
+		->order_by('products.product_id ASC, product_images.image_id ASC')
+    	->get()
+    	->result_array();
 
-    public function save($data = array()){
-        return json_encode($this->db->insert($this->tableName, $data));
-        
-    }
+		$products = [];
+		foreach ($raw as $row) {
+    		$pid = $row['product_id'];
 
-    public function update($data = array(), $where = array()){
+    		if (!isset($products[$pid])) {
+        		$products[$pid] = $row;
+        		$products[$pid]['images'] = [];
+        		unset($products[$pid]['image_url'], $products[$pid]['alt_text']);
+		    }
 
-        return json_encode($this->db->where($where)->update($this->tableName, $data));
-        
-    }
-    
-    public function delete($where = array()){
-        return json_encode($this->db->where($where)->delete($this->tableName));
-        
-    }
+    		$products[$pid]['images'][] = [
+        	'image_url' => $row['image_url'],
+        	'alt_text' => $row['alt_text']
+    		];
+		}
+
+		$products = array_values($products);
+		return $products;
+	}
 
     public function login($data = array()){
-    $this->db->where('mail', $data['mail']);
-    $query = $this->db->get($this->tableUsers); 
+    	$this->db->where('mail', $data['mail']);
+    	$query = $this->db->get($this->tableUsers); 
 
-    if($query->num_rows() == 1){
-        $user = $query->row(); 
-        if($data['password'] == $user->password){
-            return $user; 
-        }
-    }
-    return false;
+    	if($query->num_rows() == 1){
+        	$user = $query->row(); 
+	        if($data['password'] == $user->password){
+    	        return $user; 
+        	}
+    	}
+    	return false;
     }
 
     public function signin($user = array()){
@@ -69,7 +70,6 @@ class DbModel extends CI_Model {
 
     public function update_user($user_id, $data = array())
     {
-        var_dump($data);
         return $this->db->where('user_id', $user_id)->update('users', $data);
     }
 
@@ -83,24 +83,38 @@ class DbModel extends CI_Model {
                 return json_decode($cached, true);
             }
         }
-
-        $products = $this->db->get($this->tableProducts)->result_array();
-
-        foreach($products as &$product){
-            $this->db->where('product_fk', $product['product_id']);
-            $product['images'] = $this->db->get($this->tableProducts_Images)->result_array();
-
-            $this->db->where('category_id', $product['category_fk']);
-            $product['category'] = $this->db->get($this->tableCategories)->row_array();
-        }
-
-        write_file($cache_file, json_encode($products));
-
-        return $products;
-    }
-
+		
+		$raw = $this->db->select('products.*,
+		product_images.*,
+		categories.category_name')
+		->from($this->tableProducts)
+		->join($this->tableProducts_Images,'product_images.product_fk = products.product_id', 'left')
+		->join($this->tableCategories, 'categories.category_id = products.category_fk', 'left')
+		->order_by('products.product_id ASC')
+		->get()->result_array();
+		
+		$products = [];
+		foreach($raw as &$row){
+			$pid = $row['product_id'];
+			
+			if(!isset($products[$pid])){
+				$products[$pid] = $row;
+				$products[$pid]['images'] = [];
+				unset($products[$pid]['image_id'],$products[$pid]['image_url'],$products[$pid]['product_fk'],$products[$pid]['alt_text']);
+			}
+			
+			$products[$pid]['images'][] = [
+				'image_id' 	=> $row['image_id'],
+				'image_url'	=> $row['image_url'],
+				'alt_text'	=> $row['alt_text']
+			];
+		}
+		write_file($cache_file, json_encode($products));
+		return $products;
+	}
+	
     public function clear_products_cache(){
-        $cache_path = APPPATH.'cache/'.$this->cache_file_products;
+		$cache_path = APPPATH.'cache/'.$this->cache_file_products;
         if(file_exists($cache_path)){
             opcache_reset();
             unlink($cache_path);
@@ -138,8 +152,10 @@ class DbModel extends CI_Model {
     }
 
 public function get_orders($id){
-    $this->db->select('orders.order_id, orders.user_fk, orders.order_address, orders.status, 
-        GROUP_CONCAT(products.title) AS product_titles, orders.price AS total_price');
+
+    $this->db->select('orders.order_id,orders.price as total_price,orders.order_address,orders.status,orders.order_mail,orders.order_name,
+     products.title, products.price, products.thumbnail, products.stock, GROUP_CONCAT(products.title) as product_titles,
+      order_items.qty');
     $this->db->from($this->tableOrders);
     $this->db->join($this->tableOrder_Items, 'order_items.order_fk = orders.order_id', 'left');
     $this->db->join($this->tableProducts, 'products.product_id = order_items.product_fk', 'left');
@@ -156,14 +172,18 @@ public function get_orders($id){
 }
 
 public function get_all_orders(){
-    $orders = $this->db->get($this->tableOrders)->result_array();
-    foreach ($orders as &$order){
-        $this->db->where('user_id', $order['user_fk']);
-        $user = $this->db->get($this->tableUsers)->row_array();
-        $order['user_name'] = $user ? $user['name'] : null;
-        unset($order['user_fk']); 
-    }
-    return $orders;
+	$raw = $this->db->select('orders.*,
+	 users.user_id,users.name,
+	 order_items.qty,
+	 GROUP_CONCAT(products.title) as title')
+	 ->from($this->tableOrders)
+	 ->join($this->tableUsers, 'users.user_id = orders.user_fk', 'left')
+	 ->join($this->tableOrder_Items, 'order_items.order_fk = orders.order_id', 'left')
+	 ->join($this->tableProducts, 'products.product_id = order_items.product_fk', 'inner')
+	 ->group_by('orders.order_id')
+	 ->order_by('orders.order_id DESC')
+	 ->get()->result_array();
+	return $raw;
 }
 
 public function addNewProduct($product = array()){
@@ -215,6 +235,7 @@ public function createOrder($user,$items,$total){
         ];
         $this->db->insert($this->tableOrder_Items, $orderItems);
     }
+	return $orderData;
 }
 
     public function createGuestAccount($userData){
@@ -226,5 +247,16 @@ public function createOrder($user,$items,$total){
         var_dump($data);
         return $this->db->insert($this->tableProducts_Images, $data);
 
+    }
+
+    public function UpdateProductImages($data)
+    {
+        foreach ($data as $image){
+            $this->db->where('image_id', $image["image_id"])->update($this->tableProducts_Images, $image);
+        }
+    }
+
+    public function deleteProductImage($image_id){
+        $this->db->where('image_id',$image_id)->delete($this->tableProducts_Images);
     }
 }

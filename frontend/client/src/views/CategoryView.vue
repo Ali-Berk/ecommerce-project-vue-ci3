@@ -4,10 +4,10 @@
     <div v-if="ProductStore.status == 'success'" class="row g-4">
       <div 
         v-for="(product, index) in Selectedproducts" 
-        :key="index" 
+        :key="index"
         class="col-lg-3 col-md-4 col-sm-6"
       >
-        <div class="card product-card h-100 shadow-sm">
+        <div class="card product-card h-100 shadow-sm" :class="{'out-of-stock' :product.stock < 1}">
           <div class="product-img-wrapper">
             <img 
               :src="product.thumbnail" 
@@ -42,8 +42,9 @@ export default defineComponent({
   prop:['category'],
   data() {
     return {
-      Selectedproducts:[{product_id:1,title:"err",category:"err",thumbnail:"https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",price:1}],
+      Selectedproducts:[{product_id:1,title:"err",category:"err",thumbnail:"https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",price:1, active:1, stock:0}],
       category_name: '' as string | undefined,
+      slug:'err',
     }
   },
   computed:{
@@ -56,24 +57,28 @@ export default defineComponent({
   },
   
 watch: {
-  '$route.params.slug': {
+  'slug': {
     handler(newVal) {
-      console.log("Route değişti:", newVal);
       const category = this.ProductStore.categories.find(c => c.categorySlug == newVal);
       this.category_name = category?.category_name;
-      console.log(category);
       this.Selectedproducts = this.ProductStore.products.filter(c => (c.category == category?.category_name));
+      this.Selectedproducts = this.Selectedproducts.filter(p => p.active == 1);
+    }
+  },
+  '$route.params.slug': {
+    handler(newVal){
+      this.slug = newVal;
     }
   }
 },
 
 
-  mounted(){
-    this.ProductStore.loadCategory();
-      const category = this.ProductStore.categories.find(c => c.categorySlug == this.$route.params.slug);
-      this.category_name = category?.category_name;
-      console.log(category);
-      this.Selectedproducts = this.ProductStore.products.filter(c => (c.category == category?.category_name));
+  async mounted(){
+    await this.ProductStore.loadCategory();
+    const category = this.ProductStore.categories.find(c => c.categorySlug == this.$route.params.slug);
+    this.category_name = category?.category_name;
+    this.Selectedproducts = this.ProductStore.products.filter(c => (c.category == category?.category_name));
+    this.slug = this.$route.params.slug as string;
   },
   methods:{
     
@@ -117,5 +122,25 @@ watch: {
 
 .card-text {
   font-size: 0.95rem;
+}
+
+.out-of-stock::after{
+content: 'STOKTA YOK';
+    position: absolute;
+    top: 80px; 
+    right: -25px; 
+    
+    background-color: #dc3545; 
+    color: white;
+    font-size: 0.85em;
+    font-weight: bold;
+    padding: 5px 30px;
+    
+    transform: rotate(45deg);
+    transform-origin: 100% 0;
+    
+    z-index: 10;
+    
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 </style>

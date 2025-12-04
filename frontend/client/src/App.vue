@@ -14,6 +14,7 @@
     import Carousel from './components/Carousel.vue';
     import { useUserStore } from './store/UserStore';
   import { useProductStore } from './store/ProductsStore';
+import { useOrdersStore } from './store/OrdersStore';
 
     export default {
       data() {
@@ -27,6 +28,9 @@
         },
         ProductStore(){
           return useProductStore();
+        },
+        OrderStore(){
+          return useOrdersStore();
         }
 
       },
@@ -39,6 +43,7 @@ methods: {
 
     async mounted() {
       this.UserStore.authVerify();
+      this.OrderStore.get_orders();
       window.addEventListener('session-created', () =>{
         this.UserStore.authVerify();
       })
@@ -46,13 +51,14 @@ methods: {
       try {
       const res = await fetch("/db.json");
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-  
+
       const data = await res.json();
       this.category = data.categories;
       console.log(this.category);
     } catch(err) {
     console.error("Veri alınamadı", err);
     }
+
   }
 
     }

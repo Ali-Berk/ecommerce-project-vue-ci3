@@ -8,6 +8,7 @@ class Api extends CI_Controller {
     {
         parent::__construct();
         $this->load->model('DbModel');
+		$this->load->library('RateLimit');
         header("Access-Control-Allow-Origin: http://localhost:8081");
         header("Access-Control-Allow-Credentials: true");
         header("Access-Control-Allow-Methods: GET, POST, OPTIONS, DELETE, PUT");
@@ -22,49 +23,74 @@ class Api extends CI_Controller {
     }
 
     public function index(){
-        echo "api index page";
+            header_remove("Content-Type");
+        header("Content-Type: text/html; charset=UTF-8");
+        echo '
+            <div style="font-family:Arial, sans-serif; max-width:900px; margin:40px auto; padding:20px; border:1px solid #ccc; border-radius:10px; background:#fafafa;">
+                <h1 style="text-align:center; color:#333; margin-bottom:30px;">API Endpoint Documentation</h1>
+
+                <h2 style="color:#444;">Auth & User Endpoints</h2>
+                <ul style="line-height:1.8; color:#222;">
+                    <li><strong>POST /api/login</strong> — Kullanıcı giriş yapar.</li>
+                    <li><strong>POST /api/signin</strong> — Yeni kullanıcı kaydı oluşturur ve doğrulama maili gönderir.</li>
+                    <li><strong>GET /api/verifyUser?token=TOKEN</strong> — E-posta doğrulama işlemi.</li>
+                    <li><strong>GET /api/checkLogin</strong> — Aktif session varsa kullanıcıyı döner.</li>
+                    <li><strong>GET /api/logout</strong> — Kullanıcı oturumunu sonlandırır.</li>
+                    <li><strong>POST /api/update_profile</strong> — Profil bilgilerini günceller.</li>
+                </ul>
+
+                <h2 style="color:#444;">Product Endpoints</h2>
+                <ul style="line-height:1.8; color:#222;">
+                    <li><strong>GET /api/get_products</strong> — Tüm ürünleri listeler.</li>
+                    <li><strong>GET /api/detail/{id}</strong> — Belirtilen ürünün detaylarını döner.</li>
+                    <li><strong>POST /api/addProduct</strong> — Yeni ürün ekler.</li>
+                    <li><strong>POST /api/update_product/{id}</strong> — Ürün bilgilerini günceller.</li>
+                    <li><strong>POST /api/delete_product</strong> — Ürünü siler.</li>
+                </ul>
+
+                <h2 style="color:#444;">Product Images Endpoints</h2>
+                <ul style="line-height:1.8; color:#222;">
+                    <li><strong>POST /api/AddProductImages/{id}</strong> — Ürüne yeni resim ekler.</li>
+                    <li><strong>POST /api/UpdateProductImages</strong> — Ürün resimlerini günceller.</li>
+                    <li><strong>POST /api/DeleteProductImage/{image_id}</strong> — Belirtilen resmi siler.</li>
+                </ul>
+
+                <h2 style="color:#444;">Category Endpoints</h2>
+                <ul style="line-height:1.8; color:#222;">
+                    <li><strong>GET /api/get_categories</strong> — Tüm kategorileri listeler.</li>
+                </ul>
+
+                <h2 style="color:#444;">Order Endpoints</h2>
+                <ul style="line-height:1.8; color:#222;">
+                    <li><strong>POST /api/createOrder</strong> — Sipariş oluşturur (guest + registered).</li>
+                    <li><strong>GET /api/orders</strong> — Kullanıcının kendi siparişlerini listeler.</li>
+                    <li><strong>GET /api/get_all_orders</strong> — Tüm siparişleri listeler (Admin).</li>
+                </ul>
+
+                <h2 style="color:#444;">Misc Endpoints</h2>
+                <ul style="line-height:1.8; color:#222;">
+                    <li><strong>GET /api/get_all_data</strong> — Demo amaçlı tüm ürün/kategori datası.</li>
+                    <li><strong>GET /api/index</strong> — API test endpointi.</li>
+                    <li><strong>POST /api/send_mail</strong> — Test e-postası gönderir.</li>
+                    <li><strong>POST /api/guestAccount</strong> — Misafir kullanıcı hesabı oluşturur.</li>
+                </ul>
+
+            </div>
+            ';
+
     }
 
-    public function get_all_data()
-    {
-        echo $this->DbModel->get_all();
-    }
-
-    public function save()
-    {
-        var_dump($this->JSON_DATA);
-        echo $this->Course_Model->save(
-            $this->JSON_DATA
-        );
-        
-    }
-
-    public function update()
-    {
-        $id = $this->JSON_DATA["id"];
-        unset($this->JSON_DATA["id"]);
-        $this->Course_Model->update(
-            $this->JSON_DATA,
-        array(
-            "id"            => $id));
-        
-    }
-
-    public function delete()
-    {
-        echo $this->Course_Model->delete($this->JSON_DATA);
-    }
-
-    public function get_products(){
-        $this->DbModel->clear_products_cache();
-        $products = $this->DbModel->get_products();
-        echo json_encode([
-            'status' => 'success',
-            'data' => $products
-        ]);
-    }
-
+    // AUTH SECTION
     public function login(){
+		if(!$this->ratelimit->check(5,60))
+		{
+			$this->output->set_status_header(429);
+			echo json_encode([
+				'status' => 'error',
+				'message' => 'Çok Fazla İstek Gönderdiniz. Daha Sonra Tekrar Deneyiniz.',
+			]);
+			return;
+		}
         $user = $this->DbModel->login($this->JSON_DATA);
         if($user){
             $this->session->set_userdata('user', [
@@ -227,6 +253,17 @@ class Api extends CI_Controller {
         }
     }
 
+    // PRODUCT FUNCTIONS
+
+    public function get_products(){
+        $this->DbModel->clear_products_cache();
+        $products = $this->DbModel->get_products();
+        echo json_encode([
+            'status' => 'success',
+            'data' => $products
+        ]);
+    }
+
     public function detail($id){
         $product = $this->DbModel->get_product_detail($id);
         if($product)
@@ -242,35 +279,6 @@ class Api extends CI_Controller {
                 'message' => 'ürün bulunamadı'
             ]);
         }
-    }
-
-    public function orders(){
-        
-        if($this->session->userdata('user'))
-        {
-            $user = $this->session->userdata('user');
-            $user_id = $user['user_id'];
-            $orders = $this->DbModel->get_orders($user_id);
-
-            echo json_encode([
-                'status' => 'success',
-                'order' => $orders
-            ]);
-        }
-        else{
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'User boş'
-            ]);
-        }
-    }
-
-    public function get_all_orders(){
-        $orders = $this->DbModel->get_all_orders();
-        echo json_encode([
-            'status' => 'success',
-            'orders' => $orders
-        ]);
     }
 
     public function addProduct(){
@@ -293,11 +301,25 @@ class Api extends CI_Controller {
         }
     }
 
-    public function get_categories(){
-        $categories = $this->DbModel->getCategories();
-        echo json_encode([
-            'categories' => $categories
-        ]);
+    public function update_product($product_id){
+        $data = $this->JSON_DATA;
+        unset($data["newImage"]);
+        unset($data["images"]);
+        if($data){
+
+            $this->DbModel->updateProduct($product_id, $data);
+			echo json_encode([
+				'status' 	=> 'success',
+				'message' 	=> 'Ürün Güncelleme Başarılı',
+				'data' 		=> $data
+			]);
+		}
+        else{
+            echo json_encode([
+            'status' 	=> 'error',
+			'message' 	=> 'Ürün Güncelleme Başarısız'
+    		]);
+        }
     }
 
     public function delete_product(){
@@ -305,33 +327,206 @@ class Api extends CI_Controller {
         if($data){
             $this->DbModel->deleteProduct($data);
             echo json_encode([
-                'status' => 'success',
-                'message' => 'Ürün silme işlemi başarılı.',
-                'data' => $data
+                'status' 	=> 'success',
+                'message' 	=> 'Ürün silme işlemi başarılı.',
+                'data' 		=> $data
             ]);
         }
         else{
             echo json_encode([
-                'status' => 'error',
-                'message' => 'Ürün silme işleminde bir hatayla karşılaşıldı'
+                'status' 	=> 'error',
+                'message' 	=> 'Ürün silme işleminde bir hatayla karşılaşıldı'
             ]);
         }
 
     }
 
-    public function update_product($product_id){
-        $data = $this->JSON_DATA;
-        unset($data["newImage"]);
-        unset($data["images"]);
-        var_dump($data);
-        if($data)
-        {
-            $this->DbModel->updateProduct($product_id, $data);
+    public function AddProductImages($product_id){
+        $data = $this->JSON_DATA["newImage"];
+        if(!empty($data['image_url'])){
+
+            return $this->DbModel->AddProductImages($data,$product_id);
+			echo json_encode([
+				'status'	=> 'success',
+				'message'	=> 'Resim Başarıyla Eklendi',
+				'data'		=> $data
+			]);
         }
         else{
-            echo "başarısız";
+            echo json_encode([  
+				"status" 	=> "error",
+                "message" 	=> "URL Kısmı Boş Bırakılamaz."
+                ]);
         }
     }
+
+    public function UpdateProductImages(){
+        $data = $this->JSON_DATA;
+		if($data){
+			$this->DbModel->UpdateProductImages($data);
+			echo json_encode([
+				'status' 	=> 'success',
+				'message' 	=> 'Resim Güncelleme Başarılı.',
+				'data' 		=> $data
+			]);
+		}
+		else{
+			echo json_encode([
+				'status' => 'error',
+				'message' => 'URL Kısmı Boş Bırakılamaz.'
+			]);
+		}
+    }
+
+    public function DeleteProductImage($image_id){
+		if($image_id){
+			return $this->DbModel->DeleteProductImage($image_id);
+			echo json_encode([
+				'status'	=> 'success',
+				'message'	=> 'Resim Başarıyla Kaldırıldı.',
+				'data'		=> $image_id
+			]);
+		}
+		else{
+			echo json_encode([
+				'status'	=> 'error',
+				'message'	=> 'ID bilgisi alınamadı.',
+				'data'		=> $image_id
+			]);
+		}
+    }
+
+    public function get_categories(){
+        $categories = $this->DbModel->getCategories();
+		if($categories){
+
+			echo json_encode([
+				'status' 	=> 'success',
+				'data' 		=> $categories
+			]);
+		}
+		else{
+			echo json_encode([
+				'status'	=> 'error',
+				'message'	=> 'Kategoriler Yüklenirken Bir Hata Oluştu.'
+			]);
+		}
+    }
+
+    // ORDER FUNCTIONS
+
+    public function createOrder(){
+        $customerData = $this->JSON_DATA['customer'];
+        $itemsData = $this->JSON_DATA['items'];
+        $totalPriceData = $this->JSON_DATA['total'];
+        var_dump($customerData);
+		if($itemsData && $totalPriceData && $customerData){
+
+			if($this->session->userdata('user')){
+				$customerData['user_id'] = $this->session->userdata('user')['user_id'];
+				$data = $this->DbModel->createOrder($customerData,$itemsData,$totalPriceData);
+				echo json_encode([
+					'status'	=> 'success',
+					'message'	=> 'Sipariş Başarıyla Oluşturuldu.',
+					'data'		=> $data
+				]);
+			}
+			else{
+				$customerData['user_id'] = 7;
+				$data = $this->DbModel->createOrder($customerData,$itemsData,$totalPriceData);
+				echo json_encode([
+					'status' 	=> 'success',
+					'message'	=> 'Sipariş Başarıyla Oluşturuldu.',
+					'data'		=> $data
+				]);
+			}
+		}
+		else{
+			echo json_encode([
+				'status' 	=> 'error',
+				'message'	=> 'Bilgiler Hatalı Girildi.',
+			]);
+		}
+        var_dump($itemsData);
+
+    }
+
+    public function orders(){
+        
+        if($this->session->userdata('user'))
+        {
+            $user = $this->session->userdata('user');
+            $user_id = $user['user_id'];
+            $orders = $this->DbModel->get_orders($user_id);
+
+            echo json_encode([
+                'status' 	=> 'success',
+				'message'	=> 'Siparişler Başarıyla Listelendi.',
+                'data' 		=> $orders
+            ]);
+        }
+        else{
+            echo json_encode([
+                'status' 	=> 'error',
+                'message' 	=> 'Cookie\'de kayıtlı kullanıcı bulunmadı.'
+            ]);
+        }
+    }
+
+    public function get_all_orders(){
+        $orders = $this->DbModel->get_all_orders();
+        echo json_encode([
+            'status' => 'success',
+            'orders' => $orders
+        ]);
+    }
+
+    // MISC FUNCTIONS
+
+    public function guestAccount($customerData){
+        $this->DbModel->createGuestAccount($customerData);
+    }
+
+    public function get_all_data(){
+        $data = $this->DbModel->get_all();
+		if($data){
+			echo json_encode([
+				'status' 	=> 'success',
+				'message'	=> 'Tüm Ürünler Başarıyla Listelendi.',
+				'data'		=> $data
+			]);
+		}
+		else{
+			echo json_encode([
+				'status'	=> 'error',
+				'message'	=> 'Ürünler Listelenirken Bir Sorunla Karşılaşıldı.'
+			]);
+		}
+    }
+
+    // TEST FUNCTIONS
+    public function save(){
+        var_dump($this->JSON_DATA);
+        echo $this->Course_Model->save(
+            $this->JSON_DATA
+        );
+        
+    }
+
+    public function update(){
+        $id = $this->JSON_DATA["id"];
+        unset($this->JSON_DATA["id"]);
+        $this->Course_Model->update(
+            $this->JSON_DATA,
+        array(
+            "id"            => $id));
+        
+    }
+
+    public function delete(){
+        echo $this->Course_Model->delete($this->JSON_DATA);
+    }
+
     public function send_mail(){
         $this->load->library('email');
         
@@ -349,40 +544,12 @@ class Api extends CI_Controller {
         
     }
 
-    public function createOrder(){
-        $customerData = $this->JSON_DATA['customer'];
-        $itemsData = $this->JSON_DATA['items'];
-        $totalPriceData = $this->JSON_DATA['total'];
-        var_dump($customerData);
-        if($this->session->userdata('user')){
-            $customerData['user_id'] = $this->session->userdata('user')['user_id'];
-            $this->DbModel->createOrder($customerData,$itemsData,$totalPriceData);
-        }
-        else{
-            $customerData['user_id'] = 7;
-            var_dump($customerData);
-            // $this->guestAccount($customerData);
-            $this->DbModel->createOrder($customerData,$itemsData,$totalPriceData);
-        }
-        var_dump($itemsData);
-
-    }
-
-    public function guestAccount($customerData){
-        $this->DbModel->createGuestAccount($customerData);
-    }
-
-    public function AddProductImages($product_id){
-        $data = $this->JSON_DATA["newImage"];
-        var_dump($data);
-        if(!empty($data['image_url']))
-        {
-            return $this->DbModel->AddProductImages($data,$product_id);
-        }
-        else{
-            echo json_encode([  "status" => "error",
-                                "message" => "Boş bir resim yüklenemez."
-                            ]);
-        }
-    }
+	public function handleClearRateLimit(){
+		$rows = $this->ratelimit->clear(5);
+		echo json_encode([
+			'status' 			=> 'success',
+			'message' 			=> 'RateLimit Kayıtları Başarıyla Silindi.',
+			'affected_rows' 	=> $rows
+		]);
+	}
 }

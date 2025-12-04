@@ -16,6 +16,7 @@ import DashboardAddProductView from '../views/DashboardAddProductView.vue'
 import DashboardProductEditView from '@/views/DashboardProductEditView.vue'
 import CartView from '@/views/CartView.vue'
 import CheckoutView from '@/views/CheckoutView.vue'
+import OrderDetailView from '@/views/OrderDetailView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -84,6 +85,12 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Orders',
     component: OrdersView,
     meta: {showLayout: false, requiresAuth: true}
+  },
+  {
+    path: '/orders/:id',
+    name: 'OrderDetails',
+    component:OrderDetailView,
+    meta: {showLayout:false, requiresAuth:true}
   },
   {
     path: '/dashboard',

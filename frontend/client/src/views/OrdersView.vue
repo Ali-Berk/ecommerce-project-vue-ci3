@@ -19,6 +19,7 @@
               <th scope="col">Ürünler</th>
               <th scope="col">Tutar</th>
               <th scope="col">Durum</th>
+              <th scope="col">Detay</th>
             </tr>
           </thead>
           <tbody>
@@ -40,6 +41,7 @@
                   {{ order.status }}
                 </span>
               </td>
+              <td><router-link :to="'orders/'+order.order_id" class="btn btn-primary">Detaylar</router-link></td>
             </tr>
           </tbody>
         </table>

@@ -184,7 +184,6 @@
       </div>
     </div>
   </section>
-  {{ UserStore.cart }}
 </section>
 </template>
 
