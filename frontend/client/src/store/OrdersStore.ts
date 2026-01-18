@@ -1,31 +1,60 @@
-import {defineStore} from 'pinia';
+import { defineStore } from 'pinia';
 import axios from "axios";
+import { stringifyQuery } from 'vue-router';
+
 interface Order {
     order_id: number;
-    order_items_id:number;
-    total_price:number;
-    status:string;
-    order_mail:string;
-    order_name:string;
-    user_name:string;
+    order_items_id: number;
+    total_price: number;
+    status: string;
+    order_mail: string;
+    order_name: string;
+    user_name: string;
+    order_date: string;
 }
+
 export const useOrdersStore = defineStore('Orders', {
     state: () => ({
-        // products:[{product_id:1,title:"err",thumbnail:"https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",price:1}]
-        order_data:[] as Order[],
-        status_data:null,
-        selected_order: null as Order | null ,
+        order_data: [] as Order[],
+        active_order_data: Number,
+        status_data: null as string | null,
+        selected_order: null as Order | null,
     }),
+    getters: {
+        activeOrderCount(state): number {
+            const targetStatuses = ['ongoing', 'pending', 'hazırlanıyor', 'kargoda']; 
+            return state.order_data.filter(order => 
+                targetStatuses.includes(order.status.toLowerCase())
+            ).length;
+        }
+    },
+    actions: {
+        async get_orders() {
+            try {
+                const res = await axios.get("http://localhost:8080/api/orders", { withCredentials: true });
+                
+                const formattedData = res.data.data.map((order: any) => {
+                    return {
+                        ...order,
+                        order_date: new Date(order.order_date).toLocaleDateString('tr-TR', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        })
+                    };
+                });
+                this.order_data = formattedData;
+                this.status_data = res.data.status;
 
-    actions:{
-        async get_orders(){
-            await axios.get("http://localhost:8080/api/orders", {withCredentials:true})
-            .then(res => {this.order_data = res.data.data; this.status_data = res.data.status;});      
+            } catch (error) {
+                console.error("Siparişler çekilemedi:", error);
+                this.status_data = 'error';
+            }
         },
 
-        find_order(order_id:number){
+        find_order(order_id: number) {
             const selection = this.order_data.find(o => o.order_id == order_id) || null;
             this.selected_order = selection || null;
         }
-  },
+    },
 })

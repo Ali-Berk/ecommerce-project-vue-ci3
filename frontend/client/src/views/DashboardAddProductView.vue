@@ -63,7 +63,7 @@
 
 <script>
 import axios from "axios";
-import { useProductStore } from "../store/ProductsStore"; // senin store yolu neyse o
+import { useProductStore } from "../store/ProductsStore";
 export default {
   name: "AdminAddProduct",
   data() {
@@ -76,8 +76,8 @@ export default {
         description: "",
         thumbnail: ""
       },
-      files: [],        // File list
-      previews: [],     // preview urls
+      files: [],
+      previews: [],
       loading: false,
       message: "",
       messageType: "alert-success",
@@ -133,12 +133,10 @@ export default {
         fd.append("description", this.form.description || "");
         fd.append("thumbnail", this.form.thumbnail || "");
 
-        // dosyaları ekle (backend order: files[])
         this.files.forEach((f) => {
           fd.append("images[]", f, f.name);
         });
 
-        // API endpoint adını backendine göre ayarla
         const res = await axios.post("http://localhost:8080/api/addProduct", fd, {
           headers: { "Content-Type": "application/json" },
           withCredentials: true
@@ -147,7 +145,6 @@ export default {
         if (res.data && (res.data.status === "success")) {
           this.messageType = "alert-success";
           this.message = "Ürün başarıyla eklendi.";
-          // store'u yenile (varsa)
           try {
             const store = useProductStore();
             if (store && typeof store.loadCategory === "function") {

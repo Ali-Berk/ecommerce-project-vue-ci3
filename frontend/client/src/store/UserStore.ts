@@ -41,6 +41,9 @@ export const useUserStore = defineStore('User',{
                     qty:1
                 });
             }
+        },
+        removeFromCart(product_id:number){
+            this.cart.splice(product_id,1);
         }
     }
 

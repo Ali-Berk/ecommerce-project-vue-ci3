@@ -191,6 +191,7 @@
 import { defineComponent } from 'vue';
 import { useProductStore } from '../store/ProductsStore';
 import { useUserStore } from '../store/UserStore';
+import Card from '../components/Card.vue';
 
 export default defineComponent(
 {
@@ -198,6 +199,9 @@ export default defineComponent(
   data() {
     return {
     }
+  },
+  component:{
+    Card,
   },
   computed:{
     ProductStore(){
@@ -249,7 +253,7 @@ export default defineComponent(
 }
 
 .product-card:hover .product-img {
-  transform: scale(1.1); /* resme zoom efekti */
+  transform: scale(1.1); 
 }
 
 .card-title {

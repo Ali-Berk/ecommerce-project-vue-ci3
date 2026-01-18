@@ -34,13 +34,11 @@
             <input v-model.number="form.stock" type="number" min="0" class="form-control" />
           </div>
 
-          <!-- Açıklama -->
           <div class="col-12">
             <label class="form-label fw-medium">Açıklama</label>
             <textarea v-model="form.description" class="form-control" rows="3"></textarea>
           </div>
 
-          <!-- Thumbnail -->
           <div class="col-12">
             <label class="form-label fw-medium">Thumbnail (URL)</label>
             <input
@@ -86,7 +84,6 @@
               </div>
             </div>
 
-            <!-- Yeni resim ekleme alanı -->
             <div class="p-3 border rounded bg-white">
               <label class="form-label fw-medium">Yeni Resim Ekle</label>
               <input type="text" placeholder="Resim URL" class="form-control mb-2" v-model="form.newImage.image_url"/>
@@ -94,7 +91,6 @@
             </div>
           </div>
 
-          <!-- Aktiflik -->
           <div class="col-12">
             <label class="form-label fw-medium">Aktiflik Durumu</label>
             <select v-model="form.active" class="form-select">
@@ -103,7 +99,6 @@
             </select>
           </div>
 
-          <!-- Butonlar -->
           <div class="col-12 d-flex justify-content-end gap-2 mt-3">
             <button class="btn btn-primary px-4" type="submit" :disabled="loading">
               {{ loading ? 'Güncelleniyor...' : 'Kaydet' }}

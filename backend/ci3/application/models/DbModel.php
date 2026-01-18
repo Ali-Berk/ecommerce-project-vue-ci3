@@ -153,7 +153,7 @@ class DbModel extends CI_Model {
 
 public function get_orders($id){
 
-    $this->db->select('orders.order_id,orders.price as total_price,orders.order_address,orders.status,orders.order_mail,orders.order_name,
+    $this->db->select('orders.order_id,orders.price as total_price,orders.order_address,orders.status,orders.order_mail,orders.order_name, orders.order_date,
      products.title, products.price, products.thumbnail, products.stock, GROUP_CONCAT(products.title) as product_titles,
       order_items.qty');
     $this->db->from($this->tableOrders);

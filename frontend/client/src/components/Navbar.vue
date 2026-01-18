@@ -1,126 +1,134 @@
-<!-- components/NavbarComponent.vue -->
 <template>
-  <section class="container">
-    <nav class="navbar navbar-expand-lg navbar-light bg-white position-sticky top-0 w-100 shadow-sm" style="z-index:10;">
-      <div class="container-fluid">
-        <router-link class="navbar-brand" to="/">
-          <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRp1taFhqxRZgLBXogJjDHfzb7OzR2W53VTmw&s"
-            alt="Logo"
-            style="height:50px; object-fit:contain;">
+  <section class="container-fluid px-0">
+    
+    <nav 
+      class="navbar navbar-expand-lg navbar-light bg-white position-fixed w-100 custom-navbar" 
+      :class="{ 'scrolled-navbar': isScrolled }"
+      style="z-index:100;">
+      
+      <div class="container">
+        
+        <router-link class="navbar-brand d-flex align-items-center" to="/">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRp1taFhqxRZgLBXogJjDHfzb7OzR2W53VTmw&s" alt="Logo" class="nav-logo">
         </router-link>
 
-        <div class="d-flex gap-3 align-items-center order-lg-2">
-          <router-link class="nav-link" to="/login" v-if="!user.name">
+        <div class="d-flex gap-3 align-items-center order-lg-2 ms-auto ms-lg-0">
+          
+          <button class="btn btn-link nav-icon-btn" @click="toggleSearchBar">
+            <i class="bi bi-search"></i>
+          </button>
+
+          <router-link class="btn btn-link nav-icon-btn" to="/login" v-if="!user.name">
             <i class="bi bi-person"></i>
           </router-link>
 
           <div v-if="user.name" class="dropdown">
-            <button class="btn btn-link nav-link p-0 dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
-              <i class="bi bi-person fs-5"></i>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-              <li><router-link class="dropdown-item" to="/profile">Profil</router-link></li>
-              <li><router-link class="dropdown-item" to="/orders">Siparişlerim</router-link></li>
-              <li><router-link class="dropdown-item" to="/settings">Ayarlar</router-link></li>
-              <li v-if="user.role == 1"><hr class="dropdown-divider"></li>
-              <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard">Dashboard</router-link></li>
-              <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard/products">Ürünler</router-link></li>
-              <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard/orders">Siparişler</router-link></li>
-              <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard/meta">Meta</router-link></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><button class="dropdown-item" @click="logout">Çıkış Yap</button></li>
+             <button class="btn btn-link nav-icon-btn dropdown-toggle hide-arrow" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+               <i class="bi bi-person-fill"></i>
+             </button>
+             
+             <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2" aria-labelledby="userDropdown">
+              <li><div class="dropdown-header text-muted fw-bold small">Hesabım</div></li>
+              <li><router-link class="dropdown-item" to="/profile"><i class="bi bi-person me-2"></i>Profil</router-link></li>
+              <li><router-link class="dropdown-item" to="/orders"><i class="bi bi-box-seam me-2"></i>Siparişlerim</router-link></li>
+              <li><router-link class="dropdown-item" to="/settings"><i class="bi bi-gear me-2"></i>Seçenekler</router-link></li>
+
+              <li v-if="user.role == 1"><hr class="dropdown-divider my-2"></li>
+              <li v-if="user.role == 1"><div class="dropdown-header text-primary fw-bold small">Yönetim Paneli</div></li>
+              <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard"><i class="bi bi-speedometer2 me-2"></i>Dashboard</router-link></li>
+              <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard/orders"><i class="bi bi-list-check me-2"></i>Bütün Siparişler</router-link></li>
+              <li v-if="user.role == 1"><router-link class="dropdown-item" to="/dashboard/products"><i class="bi bi-grid me-2"></i>Ürünler</router-link></li>
+
+              <li><hr class="dropdown-divider my-2"></li>
+              <li><button class="dropdown-item text-danger" @click="logout"><i class="bi bi-box-arrow-right me-2"></i>Çıkış Yap</button></li>
             </ul>
           </div>
 
-          <button class="btn btn-link nav-link p-0" @click="toggleSearchBar">
-            <i class="bi bi-search fs-5"></i>
+          <button class="btn btn-link nav-icon-btn position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+            <i class="bi bi-bag"></i>
+            <span v-if="UserStore.cart.length > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-black text-white border border-white" style="font-size: 0.65rem; padding: 0.35em 0.5em;">
+              {{ UserStore.cart.length }}
+            </span>
           </button>
 
-          <button class="btn btn-link nav-link p-0" type="button" data-bs-toggle="offcanvas"
-            data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas">
-            <i class="bi bi-cart2 fs-5"></i>
-          </button>
-
-          <button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-            aria-expanded="false" aria-label="Toggle navigation">
+          <button class="navbar-toggler border-0 p-0 ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
             <span class="navbar-toggler-icon"></span>
           </button>
         </div>
 
-        <div class="collapse navbar-collapse mt-3 mt-lg-0 order-lg-1" id="navbarSupportedContent">
-          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-3 text-center">
+        <div class="collapse navbar-collapse mt-3 mt-lg-0 order-lg-1 justify-content-center" id="navbarSupportedContent">
+          <ul class="navbar-nav mb-2 mb-lg-0 gap-4 fw-medium">
             <li class="nav-item" v-for="(item, index) in category" :key="index">
-              <router-link class="nav-link" :to="item.path">{{ item.name }}</router-link>
+              <router-link class="nav-link custom-nav-link" :to="item.path">{{ item.name }}</router-link>
             </li>
           </ul>
         </div>
+
       </div>
     </nav>
 
-    <!-- Arama çubuğu -->
     <transition name="slide-down">
-      <div v-if="searchActive" class="searchbar-container">
-        <div class="container-fluid d-flex align-items-center justify-content-between">
-          <input
-            type="text"
-            class="form-control form-control-lg border-0 flex-grow-1 me-3"
-            placeholder="Aramak istediğiniz ürünü yazın..."
-            v-model="searchQuery"
-          />
-          <button class="btn btn-outline-secondary" @click="toggleSearchBar">
+      <div v-if="searchActive" class="searchbar-container" :class="{'scrolled-search': isScrolled}">
+        <div class="container d-flex align-items-center h-100">
+          <i class="bi bi-search fs-5 text-muted me-3"></i>
+          <input type="text" class="form-control form-control-lg border-0 shadow-none bg-transparent" placeholder="Ne aramıştınız?" v-model="searchQuery" style="font-size: 1.2rem;"/>
+          <button class="btn btn-icon rounded-circle" @click="toggleSearchBar">
             <i class="bi bi-x-lg"></i>
           </button>
         </div>
       </div>
     </transition>
 
-    <!-- Sepet Offcanvas -->
-    <div
-      class="offcanvas offcanvas-end"
-      tabindex="-1"
-      id="cartOffcanvas"
-      aria-labelledby="cartOffcanvasLabel"
-      data-bs-backdrop="true"
-      data-bs-scroll="false"
-    >
-      <div class="offcanvas-header">
-        <h5 id="cartOffcanvasLabel">Sepetim</h5>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas" aria-labelledby="cartOffcanvasLabel">
+       <div class="offcanvas-header border-bottom">
+        <h5 id="cartOffcanvasLabel" class="fw-bold m-0 font-monospace">SEPETİM ({{ UserStore.cart.length }})</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Kapat"></button>
       </div>
-      <div class="offcanvas-body d-flex flex-column justify-content-between" style="height:100%;">
-        <div>
-          <div v-if="UserStore.cart.length === 0">
-            <p>Sepetiniz şu anda boş.</p>
-          </div>
-          <div v-else>
-            <div v-for="item in UserStore.cart" :key="item.id" class="d-flex justify-content-between align-items-center mb-3">
-              <img :src="item.thumbnail" alt="Ürün" style="width:50px; height:50px; object-fit:cover;">
-              <div class="flex-grow-1 ms-2 d-flex flex-column">
-                <p class="mb-0">{{ item.title }}</p>
-                <small>{{ item.price }} TL</small>
-                <div class="d-flex align-items-center mt-1 qty-input-wrapper">
-                  <button class="btn btn-outline-secondary btn-sm" @click="item.qty = Math.max(1, item.qty - 1)">-</button>
-                  <input type="number" v-model.number="item.qty" min="1" class="form-control form-control-sm text-center mx-1" style="width:60px;">
-                  <button class="btn btn-outline-secondary btn-sm" @click="item.qty += 1">+</button>
-                </div>
-            </div>
-            <div>
-              <strong>{{ item.qty * item.price }} TL</strong>
-            </div>
-          </div>
 
+      <div class="offcanvas-body d-flex flex-column p-0">
+        <div v-if="UserStore.cart.length === 0" class="h-100 d-flex flex-column align-items-center justify-content-center text-muted">
+          <i class="bi bi-bag-x fs-1 mb-3 opacity-50"></i>
+          <p class="fw-light">Sepetinizde ürün bulunmuyor.</p>
+          <button class="btn btn-dark rounded-0 px-5 mt-3" data-bs-dismiss="offcanvas">ALIŞVERİŞE BAŞLA</button>
+        </div>
+
+        <div v-else class="flex-grow-1 overflow-auto p-3">
+          <div v-for="item in UserStore.cart" :key="item.id" class="cart-item-card d-flex align-items-center mb-3 p-2">
+            <div class="cart-img-wrapper">
+              <img :src="item.thumbnail" alt="Ürün" class="cart-img">
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <div class="d-flex justify-content-between align-items-start">
+                <h6 class="mb-1 text-truncate fw-bold" style="max-width: 150px; font-size:0.95rem;">{{ item.title }}</h6>
+                <button class="btn btn-link text-muted p-0 ms-2 hover-danger" @click="removeItem(item)">
+                   <i class="bi bi-trash3"></i>
+                </button>
+              </div>
+              <small class="text-muted d-block mb-2">{{ item.price }} TL</small>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="qty-selector d-flex align-items-center border rounded-pill px-2 py-1">
+                  <button class="btn btn-sm btn-icon p-0" @click="item.qty = Math.max(1, item.qty - 1)">-</button>
+                  <input type="number" v-model.number="item.qty" class="qty-input mx-2" min="1" readonly>
+                  <button class="btn btn-sm btn-icon p-0" @click="item.qty += 1">+</button>
+                </div>
+                <span class="fw-bold fs-6">{{ (item.qty * item.price).toFixed(2) }} TL</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Butonlar -->
-        <div class="mt-3 d-flex gap-2">
-          <router-link to="/cart" class="btn btn-primary flex-grow-1">Sepete Git</router-link>
-          <router-link to="/checkout" class="btn btn-success flex-grow-1">Alışverişi Tamamla</router-link>
+        <div v-if="UserStore.cart.length > 0" class="cart-footer p-4 border-top bg-light">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted small text-uppercase ls-1">Ara Toplam</span>
+            <span class="fs-4 fw-bold text-dark">{{ calculateTotal }} TL</span>
+          </div>
+          <div class="d-grid gap-2">
+            <router-link to="/checkout" class="btn btn-dark py-3 fw-bold text-uppercase ls-1">Alışverişi Tamamla</router-link>
+            <router-link to="/cart" class="btn btn-outline-dark py-2">Sepete Git</router-link>
+          </div>
         </div>
       </div>
+    </div>
   </section>
 </template>
 
@@ -135,61 +143,156 @@ export default {
     return {
       searchActive: false,
       searchQuery: '',
+      isScrolled: false, // Scroll durumunu tutacak değişken
     };
   },
   computed: {
     UserStore() {
       return useUserStore();
+    },
+    calculateTotal() {
+      if (!this.UserStore.cart) return "0.00";
+      return this.UserStore.cart.reduce((acc, item) => acc + (item.price * item.qty), 0).toFixed(2);
     }
   },
   methods: {
     toggleSearchBar() {
       this.searchActive = !this.searchActive;
+      if (this.searchActive) {
+        setTimeout(() => {
+          const input = document.querySelector('.searchbar-container input');
+          if(input) input.focus();
+        }, 100);
+      }
     },
     logout() {
       axios.get('http://localhost:8080/api/logout', { withCredentials: true })
         .catch(err => console.log(err))
         .then(() => location.reload());
+    },
+    removeItem(item) {
+      const index = this.UserStore.cart.indexOf(item);
+      if (index > -1) {
+        this.UserStore.cart.splice(index, 1);
+      }
+    },
+    // Scroll olayını dinleyen metod
+    handleScroll() {
+      // 50px'den fazla aşağı inilirse sticky moda geç
+      this.isScrolled = window.scrollY > 50;
     }
   },
   mounted() {
+    // Component yüklendiğinde scroll listener ekle
+    window.addEventListener('scroll', this.handleScroll);
+
     const offcanvasEl = document.getElementById('cartOffcanvas');
-    offcanvasEl.addEventListener('hidden.bs.offcanvas', () => {
-      const backdrop = document.querySelector('.offcanvas-backdrop');
-      if (backdrop) backdrop.remove();
-    });
+    if(offcanvasEl){
+        offcanvasEl.addEventListener('hidden.bs.offcanvas', () => {
+        const backdrop = document.querySelector('.offcanvas-backdrop');
+        if (backdrop) backdrop.remove();
+        });
+    }
+  },
+  unmounted() { // Vue 2 kullanıyorsan 'destroyed'
+    // Component yok edildiğinde listener'ı temizle (performans için)
+    window.removeEventListener('scroll', this.handleScroll);
   }
 };
 </script>
 
 <style scoped>
-.searchbar-container {
-  position: fixed;
+/* --- NAVBAR TEMEL STİLLER --- */
+.custom-navbar {
+  /* Başlangıç durumu: Tam genişlik, üstte */
   top: 0;
   left: 0;
-  right: 0;
-  height: 80px;
-  background-color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1055;
-  padding: 0 1rem;
+  width: 100%;
+  backdrop-filter: blur(5px);
+  background-color: rgba(255, 255, 255, 0.98);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  
+  /* Animasyon Geçişi */
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 
-.slide-down-enter-active,
-.slide-down-leave-active {
+/* --- SCROLL OLUNCA ÇALIŞACAK STİL (YÜZEN MOD) --- */
+.scrolled-navbar {
+  /* Yukarıdan boşluk bırak */
+  top: 20px;
+  
+  /* Genişliği azalt ve ortala */
+  width: 90%; 
+  left: 50%;
+  transform: translateX(-50%);
+  
+  /* Kenarları yuvarla ve gölge ekle */
+  border-radius: 50px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255,255,255,0.5);
+  
+  /* Biraz daha şeffaflık */
+  background-color: rgba(255, 255, 255, 0.90) !important;
+  backdrop-filter: blur(15px);
+  
+  /* İç boşluğu biraz sıkılaştır */
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+/* Logo Animasyonu */
+.nav-logo {
+  height: 45px;
+  object-fit: contain;
   transition: all 0.3s ease;
 }
-.slide-down-enter-from {
-  transform: translateY(-100%);
-  opacity: 0;
-}
-.slide-down-leave-to {
-  transform: translateY(-100%);
-  opacity: 0;
+.scrolled-navbar .nav-logo {
+  height: 35px; /* Scroll olunca logo biraz küçülür */
 }
 
-.offcanvas-end {
-  width: 400px;
-  border-left: 1px solid #ddd;
+/* --- SEARCHBAR AYARLARI --- */
+.searchbar-container {
+  position: fixed;
+  top: 85px; /* Navbar normal boyutu altı */
+  left: 0;
+  right: 0;
+  height: 70px;
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+  z-index: 90;
+  transition: top 0.4s ease;
 }
+
+/* Navbar küçülünce searchbar da yukarı kaymalı */
+.scrolled-search {
+  top: 80px; /* Navbar floating olunca searchbar konumu */
+  width: 90%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 0 0 30px 30px; /* Alt kısımları yuvarla */
+  box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+}
+
+/* --- DİĞER STİLLER (Aynı) --- */
+.custom-nav-link { color: #333 !important; font-size: 0.95rem; position: relative; transition: color 0.3s ease; }
+.custom-nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 0px; left: 0; background-color: #000; transition: width 0.3s ease; }
+.custom-nav-link:hover::after, .custom-nav-link.router-link-active::after { width: 100%; }
+.nav-icon-btn { color: #333; font-size: 1.25rem; padding: 5px; transition: transform 0.2s, color 0.2s; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+.nav-icon-btn:hover { background-color: #f5f5f5; color: #000; }
+.hide-arrow::after { display: none; }
+.dropdown-item { padding: 10px 20px; font-size: 0.9rem; transition: background 0.2s; }
+.dropdown-item:hover { background-color: #f8f9fa; }
+.slide-down-enter-active, .slide-down-leave-active { transition: all 0.3s ease; }
+.slide-down-enter-from, .slide-down-leave-to { transform: translateY(-20px); opacity: 0; }
+.offcanvas-end { width: 400px; border: none; }
+.ls-1 { letter-spacing: 1px; }
+.cart-item-card { background: #fff; border-bottom: 1px solid #f0f0f0; }
+.cart-img-wrapper { width: 70px; height: 70px; border-radius: 8px; overflow: hidden; background: #f8f9fa; flex-shrink: 0; }
+.cart-img { width: 100%; height: 100%; object-fit: cover; }
+.hover-danger { transition: color 0.2s; }
+.hover-danger:hover { color: #dc3545 !important; }
+.qty-input { width: 25px; border: none; background: transparent; text-align: center; font-weight: 600; padding: 0; outline: none; }
+.qty-input::-webkit-outer-spin-button, .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 </style>
