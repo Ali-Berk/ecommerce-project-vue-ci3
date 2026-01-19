@@ -1,10 +1,22 @@
 import {defineStore} from 'pinia';
 import axios from "axios";
-
+interface User {
+  user_id: number;
+  mail: string;
+  name: string;
+  password?: string;   
+  address: string;
+  role_fk: number;      
+  is_verified: number;  
+  token?: string;      
+  guest: number;        
+  tel: string;
+  birthday:Date;         
+}
 export const useUserStore = defineStore('User',{
     state: () => ({
         status:"undefined",
-        user:{} as any,
+        user: null as User | null,
         cart:[] as any[]
     }),
     actions:{
@@ -16,14 +28,14 @@ export const useUserStore = defineStore('User',{
             this.status = 'success';
             }
             else{
-            this.user = {};
+            this.user = null;
             this.status = 'error';
             }
             })
             .catch(err => console.error("Kullanıcı doğrulama hatası:", err));
         },
         sessionDestroy(){
-            this.user = {};
+            this.user = null;
         },
         addToCart(product:any){
             const item = this.cart.find(p => p.product_id == product.product_id);

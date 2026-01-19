@@ -205,9 +205,9 @@ export default {
     }
     
     function getStatusClass(p) {
-      if (p.active != 1) return 'bg-danger-subtle text-danger'; // Pasif
-      if (p.stock <= 0) return 'bg-warning-subtle text-warning-emphasis'; // Tükendi
-      return 'bg-success-subtle text-success'; // Yayında
+      if (p.active != 1) return 'bg-danger-subtle text-danger';
+      if (p.stock <= 0) return 'bg-warning-subtle text-warning-emphasis'; 
+      return 'bg-success-subtle text-success'; 
     }
 
     function getStatusLabel(p) {

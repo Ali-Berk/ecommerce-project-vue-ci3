@@ -13,10 +13,12 @@ import NotFoundView from '../views/NotFoundView.vue'
 import DashboardProductsView from '../views/DashboardProductsView.vue'
 import DashboardOrdersView from '../views/DashboardOrdersView.vue'
 import DashboardAddProductView from '../views/DashboardAddProductView.vue'
-import DashboardProductEditView from '@/views/DashboardProductEditView.vue'
-import CartView from '@/views/CartView.vue'
-import CheckoutView from '@/views/CheckoutView.vue'
-import OrderDetailView from '@/views/OrderDetailView.vue'
+import DashboardProductEditView from '../views/DashboardProductEditView.vue'
+import CartView from '../views/CartView.vue'
+import CheckoutView from '../views/CheckoutView.vue'
+import OrderDetailView from '../views/OrderDetailView.vue'
+import DashboardOrderDetailView from '../views/DashboardOrderDetailView.vue'
+import DashboardView from '@/views/DashboardView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -95,7 +97,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component:NotFoundView,
+    component:DashboardView,
     meta:{showLayout:false, requiresAdmin: true}
   },
   {
@@ -120,6 +122,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/dashboard/products/:slug',
     name: 'dashboardProductEdit',
     component: DashboardProductEditView,
+    meta: {showLayout:false, requiresAdmin:true}
+  },
+  {
+    path: '/dashboard/orders/detail/:slug',
+    name: 'dashboardOrderDetail',
+    component: DashboardOrderDetailView,
     meta: {showLayout:false, requiresAdmin:true}
   },
   {

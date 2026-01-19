@@ -99,7 +99,7 @@
                 </div>
                 <div class="col-md-6">
                   <div class="form-floating custom-form-floating">
-                    <input type="tel" class="form-control" id="phoneInput" placeholder="Telefon" v-model="form.phone" :disabled="!isEditing">
+                    <input type="tel" class="form-control" id="phoneInput" placeholder="Telefon" v-model="form.tel" :disabled="!isEditing">
                     <label for="phoneInput">Telefon Numarası</label>
                   </div>
                 </div>
@@ -149,7 +149,7 @@ export default {
       form: {
         name: this.user?.name || '',
         mail: this.user?.mail || '',
-        phone: this.user?.phone || '',
+        tel: this.user?.tel || '',
         birthDate: this.user?.birthDate || '',
         gender: this.user?.gender || 'male'
       }

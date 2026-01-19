@@ -55,7 +55,6 @@ export default {
   line-height: 1;
   position: relative;
   z-index: 2;
-  /* Hafif bir floating animasyonu */
   animation: float 6s ease-in-out infinite;
 }
 
@@ -72,7 +71,6 @@ export default {
   animation: floatShadow 6s ease-in-out infinite;
 }
 
-/* Arka Plan Şekilleri */
 .decorative-shape {
   position: absolute;
   border-radius: 50%;

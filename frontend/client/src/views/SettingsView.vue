@@ -3,7 +3,6 @@
     <h2 class="mb-4 fw-semibold">Hesap Ayarları</h2>
 
     <div class="row g-4">
-      <!-- SOL KISIM: Profil Bilgileri -->
       <div class="col-md-6">
         <div class="card shadow-sm border-0">
           <div class="card-header bg-white fw-semibold">
@@ -29,7 +28,6 @@
         </div>
       </div>
 
-      <!-- SAĞ KISIM: Şifre Değiştir -->
       <div class="col-md-6">
         <div class="card shadow-sm border-0">
           <div class="card-header bg-white fw-semibold">

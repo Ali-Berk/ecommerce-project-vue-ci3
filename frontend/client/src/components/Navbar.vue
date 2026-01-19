@@ -18,11 +18,11 @@
             <i class="bi bi-search"></i>
           </button>
 
-          <router-link class="btn btn-link nav-icon-btn" to="/login" v-if="!user.name">
+          <router-link class="btn btn-link nav-icon-btn" to="/login" v-if="!user?.name">
             <i class="bi bi-person"></i>
           </router-link>
 
-          <div v-if="user.name" class="dropdown">
+          <div v-if="user?.name" class="dropdown">
              <button class="btn btn-link nav-icon-btn dropdown-toggle hide-arrow" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                <i class="bi bi-person-fill"></i>
              </button>
@@ -143,7 +143,7 @@ export default {
     return {
       searchActive: false,
       searchQuery: '',
-      isScrolled: false, // Scroll durumunu tutacak değişken
+      isScrolled: false, 
     };
   },
   computed: {
@@ -176,14 +176,11 @@ export default {
         this.UserStore.cart.splice(index, 1);
       }
     },
-    // Scroll olayını dinleyen metod
     handleScroll() {
-      // 50px'den fazla aşağı inilirse sticky moda geç
       this.isScrolled = window.scrollY > 50;
     }
   },
   mounted() {
-    // Component yüklendiğinde scroll listener ekle
     window.addEventListener('scroll', this.handleScroll);
 
     const offcanvasEl = document.getElementById('cartOffcanvas');
@@ -194,17 +191,14 @@ export default {
         });
     }
   },
-  unmounted() { // Vue 2 kullanıyorsan 'destroyed'
-    // Component yok edildiğinde listener'ı temizle (performans için)
+  unmounted() { 
     window.removeEventListener('scroll', this.handleScroll);
   }
 };
 </script>
 
 <style scoped>
-/* --- NAVBAR TEMEL STİLLER --- */
 .custom-navbar {
-  /* Başlangıç durumu: Tam genişlik, üstte */
   top: 0;
   left: 0;
   width: 100%;
@@ -218,44 +212,31 @@ export default {
   padding-bottom: 1rem;
 }
 
-/* --- SCROLL OLUNCA ÇALIŞACAK STİL (YÜZEN MOD) --- */
 .scrolled-navbar {
-  /* Yukarıdan boşluk bırak */
   top: 20px;
-  
-  /* Genişliği azalt ve ortala */
   width: 90%; 
   left: 50%;
   transform: translateX(-50%);
-  
-  /* Kenarları yuvarla ve gölge ekle */
   border-radius: 50px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255,255,255,0.5);
-  
-  /* Biraz daha şeffaflık */
   background-color: rgba(255, 255, 255, 0.90) !important;
   backdrop-filter: blur(15px);
-  
-  /* İç boşluğu biraz sıkılaştır */
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
 
-/* Logo Animasyonu */
 .nav-logo {
   height: 45px;
   object-fit: contain;
   transition: all 0.3s ease;
 }
 .scrolled-navbar .nav-logo {
-  height: 35px; /* Scroll olunca logo biraz küçülür */
+  height: 35px; 
 }
-
-/* --- SEARCHBAR AYARLARI --- */
 .searchbar-container {
   position: fixed;
-  top: 85px; /* Navbar normal boyutu altı */
+  top: 85px; 
   left: 0;
   right: 0;
   height: 70px;
@@ -265,17 +246,15 @@ export default {
   transition: top 0.4s ease;
 }
 
-/* Navbar küçülünce searchbar da yukarı kaymalı */
 .scrolled-search {
-  top: 80px; /* Navbar floating olunca searchbar konumu */
+  top: 80px; 
   width: 90%;
   left: 50%;
   transform: translateX(-50%);
-  border-radius: 0 0 30px 30px; /* Alt kısımları yuvarla */
+  border-radius: 0 0 30px 30px;
   box-shadow: 0 15px 30px rgba(0,0,0,0.05);
 }
 
-/* --- DİĞER STİLLER (Aynı) --- */
 .custom-nav-link { color: #333 !important; font-size: 0.95rem; position: relative; transition: color 0.3s ease; }
 .custom-nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 0px; left: 0; background-color: #000; transition: width 0.3s ease; }
 .custom-nav-link:hover::after, .custom-nav-link.router-link-active::after { width: 100%; }

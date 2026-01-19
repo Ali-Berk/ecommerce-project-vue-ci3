@@ -2,59 +2,76 @@
   <section class="container my-5">
     <h1 class="mb-5 category-title">{{ category_name }}</h1>
     
-    <div v-if="ProductStore.status == 'success'" class="row g-4">
+    <div v-if="ProductStore.status == 'success'" class="row g-4 mb-5">
       <div 
         v-for="(product, index) in Selectedproducts" 
         :key="index"
         class="col-lg-3 col-md-4 col-sm-6"
       >
         <div class="card product-card h-100 border-0" :class="{'out-of-stock-card' :product.stock < 1}">
-          
-          <div v-if="product.stock < 1" class="stock-badge">
-            Tükendi
-          </div>
-
+          <div v-if="product.stock < 1" class="stock-badge">Tükendi</div>
           <div class="product-img-wrapper position-relative">
-            <img 
-              :src="product.thumbnail" 
-              class="card-img-top product-img" 
-              :alt="product.title"
-            >
+            <img :src="product.thumbnail" class="card-img-top product-img" :alt="product.title">
             <div class="card-overlay d-flex justify-content-center align-items-center gap-2">
-              <router-link 
-                class="btn btn-light btn-sm rounded-pill px-3 shadow-sm" 
-                :to="{name: 'ProductDetails', params:{slug: product.product_id}}"
-              >
+              <router-link class="btn btn-light btn-sm rounded-pill px-3 shadow-sm" :to="{name: 'ProductDetails', params:{slug: product.product_id}}">
                 <i class="bi bi-eye"></i> İncele
               </router-link>
             </div>
           </div>
-
           <div class="card-body d-flex flex-column p-4">
             <h5 class="card-title text-truncate" :title="product.title">{{ product.title }}</h5>
-            
             <div class="mt-auto">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <span class="price-tag">{{ product.price }} ₺</span>
               </div>
-              
-              <button 
-                class="btn btn-dark w-100 rounded-3 py-2 add-btn" 
-                @click="UserStore.addToCart(product)"
-                :disabled="product.stock < 1"
-              >
+              <button class="btn btn-dark w-100 rounded-3 py-2 add-btn" @click="UserStore.addToCart(product)" :disabled="product.stock < 1">
                 {{ product.stock < 1 ? 'Stokta Yok' : 'Sepete Ekle' }}
               </button>
             </div>
           </div>
-
         </div>
       </div>
     </div>
-
     <div v-else class="text-center py-5">
       <p class="text-muted fs-5">Kategori veya ürünler bulunamadı.</p>
     </div>
+
+    <hr class="my-5 border-secondary opacity-10">
+
+    <section class="recommendations-section">
+      <h3 class="mb-4 fw-bold text-dark">Bunlara da Göz Atın</h3>
+      <div class="row g-4">
+        <div 
+          v-for="(product, index) in recommendedProducts" 
+          :key="'rec-'+index"
+          class="col-lg-3 col-md-4 col-sm-6"
+        >
+          <div class="card product-card h-100 border-0" :class="{'out-of-stock-card' :product.stock < 1}">
+            <div v-if="product.stock < 1" class="stock-badge">Tükendi</div>
+            <div class="product-img-wrapper position-relative">
+              <img :src="product.thumbnail" class="card-img-top product-img" :alt="product.title">
+              <div class="card-overlay d-flex justify-content-center align-items-center gap-2">
+                <router-link class="btn btn-light btn-sm rounded-pill px-3 shadow-sm" :to="{name: 'ProductDetails', params:{slug: product.product_id}}">
+                  <i class="bi bi-eye"></i> İncele
+                </router-link>
+              </div>
+            </div>
+            <div class="card-body d-flex flex-column p-4">
+              <h5 class="card-title text-truncate" :title="product.title">{{ product.title }}</h5>
+              <div class="mt-auto">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <span class="price-tag">{{ product.price }} ₺</span>
+                </div>
+                <button class="btn btn-dark w-100 rounded-3 py-2 add-btn" @click="UserStore.addToCart(product)" :disabled="product.stock < 1">
+                  {{ product.stock < 1 ? 'Stokta Yok' : 'Sepete Ekle' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </section>
 </template>
 
@@ -68,7 +85,8 @@ export default defineComponent({
   prop:['category'],
   data() {
     return {
-      Selectedproducts:[{product_id:1,title:"err",category:"err",thumbnail:"https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",price:1, active:1, stock:0}],
+      Selectedproducts: [] as any[], 
+      recommendedProducts: [] as any[],
       category_name: '' as string | undefined,
       slug:'err',
     }
@@ -82,32 +100,50 @@ export default defineComponent({
     }
   },
   
-watch: {
-  'slug': {
-    handler(newVal) {
-      const category = this.ProductStore.categories.find(c => c.categorySlug == newVal);
-      this.category_name = category?.category_name;
-      this.Selectedproducts = this.ProductStore.products.filter(c => (c.category == category?.category_name));
-      this.Selectedproducts = this.Selectedproducts.filter(p => p.active == 1);
+  watch: {
+    'slug': {
+      handler(newVal) {
+        this.updatePageData(newVal);
+      }
+    },
+    '$route.params.slug': {
+      handler(newVal){
+        this.slug = newVal as string;
+      }
     }
   },
-  '$route.params.slug': {
-    handler(newVal){
-      this.slug = newVal;
-    }
-  }
-},
-
 
   async mounted(){
     await this.ProductStore.loadCategory();
-    const category = this.ProductStore.categories.find(c => c.categorySlug == this.$route.params.slug);
-    this.category_name = category?.category_name;
-    this.Selectedproducts = this.ProductStore.products.filter(c => (c.category == category?.category_name));
     this.slug = this.$route.params.slug as string;
+    this.updatePageData(this.slug);
   },
+
   methods:{
-    
+    updatePageData(slugVal: string) {
+      const category = this.ProductStore.categories.find(c => c.categorySlug == slugVal);
+      this.category_name = category?.category_name;
+
+      this.Selectedproducts = this.ProductStore.products.filter(c => (c.category == category?.category_name));
+      this.Selectedproducts = this.Selectedproducts.filter(p => p.active == 1);
+
+      this.generateRecommendations();
+    },
+
+    generateRecommendations() {
+      let allProducts = [...this.ProductStore.products];
+      
+      // allProducts = allProducts.filter(p => p.category !== this.category_name);
+      
+      allProducts = allProducts.filter(p => p.active == 1);
+
+      for (let i = allProducts.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allProducts[i], allProducts[j]] = [allProducts[j], allProducts[i]];
+      }
+
+      this.recommendedProducts = allProducts.slice(0, 4);
+    }
   }
 });
 </script>
@@ -216,5 +252,9 @@ watch: {
   border-color: #e9ecef;
   color: #6c757d;
   cursor: not-allowed;
+}
+
+.recommendations-section {
+  padding-top: 2rem;
 }
 </style>

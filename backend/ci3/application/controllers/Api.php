@@ -99,7 +99,8 @@ class Api extends CI_Controller {
                'mail' => $user->mail,
                'password' => $user->password,
                'address' => $user->address ?? "-",
-               'role' => $user->role_fk
+               'role' => $user->role_fk,
+			   'tel' => $user->tel
             ]);
             switch ($user->role_fk){
 
@@ -118,6 +119,7 @@ class Api extends CI_Controller {
                 'mail' => $user->mail,
                 'role' => $session['role'],
                 'address' => $user->address,
+				'tel' => $user->tel
             ]]);
         }
         else{
@@ -132,7 +134,6 @@ class Api extends CI_Controller {
         $this->form_validation->set_rules('name', 'Ad Soyad','required|min_length[3]');
         $this->form_validation->set_rules('mail', 'E-Posta','required|valid_email');
         $this->form_validation->set_rules('password', 'Şifre','required|min_length[6]');
-        $this->form_validation->set_rules('address', 'Adres');
         
         if($this->form_validation->run() == false){
             echo json_encode([
@@ -202,6 +203,7 @@ class Api extends CI_Controller {
                     'name' => $user['name'],
                     'mail' => $user['mail'],
                     'address' => $user['address'],
+					'tel' => $user['tel'],
                     'password' => $user['password'],
                     'role' => $user['role'],
                 ]

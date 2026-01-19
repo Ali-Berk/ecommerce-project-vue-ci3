@@ -8,13 +8,13 @@
 </template>
 
 <script>
-    import 'bootstrap/dist/css/bootstrap.min.css';
-    // import Footer from './components/Footer.vue';
-    import Navbar from './components/Navbar.vue';
-    import Carousel from './components/Carousel.vue';
-    import { useUserStore } from './store/UserStore';
+  import 'bootstrap/dist/css/bootstrap.min.css';
+  // import Footer from './components/Footer.vue';
+  import Navbar from './components/Navbar.vue';
+  import Carousel from './components/Carousel.vue';
+  import { useUserStore } from './store/UserStore';
   import { useProductStore } from './store/ProductsStore';
-import { useOrdersStore } from './store/OrdersStore';
+  import { useOrdersStore } from './store/OrdersStore';
 
     export default {
       data() {

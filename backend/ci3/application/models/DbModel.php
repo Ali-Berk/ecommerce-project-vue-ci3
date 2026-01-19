@@ -77,7 +77,7 @@ class DbModel extends CI_Model {
         $cache_file = APPPATH.'cache/products_cache.php';
 
 
-        if(file_exists($cache_file) && (time() - filemtime($cache_file) < 3600)){ // 3600 saniye = 1 saat
+        if(file_exists($cache_file) && (time() - filemtime($cache_file) < 3600)){ // 1 saatlik cache süresi
             $cached = read_file($cache_file);
             if($cached !== false){
                 return json_decode($cached, true);

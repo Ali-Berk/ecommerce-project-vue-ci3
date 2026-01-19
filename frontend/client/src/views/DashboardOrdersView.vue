@@ -92,9 +92,14 @@
 
                 <td class="text-end pe-4">
                   <div class="d-flex gap-2 justify-content-end">
-                    <button class="btn btn-light btn-sm rounded-circle action-btn text-primary" @click="viewDetails(o)" title="Detay">
-                      <i class="bi bi-eye"></i>
-                    </button>
+                    <router-link :to="'/dashboard/orders/detail/'+o.order_id"></router-link>
+                    <router-link 
+                    :to="{ name: 'dashboardOrderDetail', params: { slug: o.order_id } }" 
+                    >
+                        <button class="btn btn-light btn-sm rounded-circle action-btn text-primary" title="Detay">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                        </router-link>
                     <button class="btn btn-light btn-sm rounded-circle action-btn text-danger" @click="deleteOrder(o.order_id)" title="Sil">
                       <i class="bi bi-trash"></i>
                     </button>
@@ -167,9 +172,6 @@ export default {
           })
           .catch(err => console.error("Silme hatası:", err));
       }
-    },
-    viewDetails(o) {
-      alert(`Sipariş #${o.order_id} detayları açılıyor...`);
     },
     formatDate(date) {
       if(!date) return '-';
