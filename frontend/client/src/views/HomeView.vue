@@ -137,39 +137,41 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { computed, defineComponent } from 'vue';
 import { useProductStore } from '../store/ProductsStore';
 import { useUserStore } from '../store/UserStore';
 import Card from '../components/Card.vue';
+import { onMounted } from 'vue';
 
 export default defineComponent({
   name: 'HomeView',
-  data() {
-    return {
-    }
-  },
-  components: {
-    Card,
-  },
-  computed: {
-    ProductStore() {
-      return useProductStore();
-    },
-    UserStore() {
-      return useUserStore();
-    },
-    randomizedProduct(){
-      let list = [...this.ProductStore.products];
+  setup() {
+    const ProductStore = useProductStore();
+    const UserStore = useUserStore();
+
+    const randomizedProduct = computed(() => {
+      let list = [...ProductStore.products]; 
+      
       list = list.filter(p => p.active == 1 && p.stock > 0);
+      
       for (let i = list.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [list[i], list[j]] = [list[j], list[i]];
       }
       return list.slice(0, 3);
-    }
-  },
-  mounted() {
-    this.ProductStore.loadCategory();
+    })
+
+    onMounted(() => {
+      ProductStore.loadCategory();
+    })
+
+    return { 
+      ProductStore, 
+      UserStore, 
+      randomizedProduct }
+    },
+  components: {
+    Card,
   },
 });
 </script>

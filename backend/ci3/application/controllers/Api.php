@@ -100,7 +100,10 @@ class Api extends CI_Controller {
                'password' => $user->password,
                'address' => $user->address ?? "-",
                'role' => $user->role_fk,
-			   'tel' => $user->tel
+			   'tel' => $user->tel,
+			   'birthDate' => $user->birthDate,
+			   'info' => $user->info,
+			   'promotional' => $user->promotional
             ]);
             switch ($user->role_fk){
 
@@ -109,17 +112,19 @@ class Api extends CI_Controller {
                     break;
                 case 2:
                     $session['role'] = "Editor";
+					break;
                 default:
                     $session['role'] = "User";
                     break;
                 }
 
-            echo json_encode(['status' => 'success', 'message' => 'Giriş Başarılı', 'user' => [
-                'name' => $user->name,
-                'mail' => $user->mail,
-                'role' => $session['role'],
-                'address' => $user->address,
-				'tel' => $user->tel
+            echo json_encode(['status' => 'success', 'message' => 'Giriş Başarılı', 
+			'user' => [
+                'name' 		=> $user->name,
+                'mail' 		=> $user->mail,
+                'role' 		=> $session['role'],
+                'address' 	=> $user->address,
+				'tel' 		=> $user->tel
             ]]);
         }
         else{
@@ -197,15 +202,18 @@ class Api extends CI_Controller {
         if($this->session->userdata('user')){
             $user = $this->session->userdata('user');
             echo json_encode([
-                'status' => 'success',
+                'status' 			=> 'success',
                 'user' => [
-                    'user_id' => $user['user_id'],
-                    'name' => $user['name'],
-                    'mail' => $user['mail'],
-                    'address' => $user['address'],
-					'tel' => $user['tel'],
-                    'password' => $user['password'],
-                    'role' => $user['role'],
+                    'user_id' 		=> $user['user_id'],
+                    'name' 			=> $user['name'],
+                    'mail' 			=> $user['mail'],
+                    'address' 		=> $user['address'],
+					'tel' 			=> $user['tel'],
+                    'password' 		=> $user['password'],
+                    'role' 			=> $user['role'],
+					'birthDate'		=> $user['birthDate'],
+					'info'			=> $user['info'],
+					'promotional'	=> $user['promotional']
                 ]
                 ]);
         }
@@ -229,8 +237,6 @@ class Api extends CI_Controller {
     public function update_profile(){
         $data = $this->JSON_DATA;
         $user = $this->session->userdata('user');
-        var_dump($data);
-        var_dump($user);
         if(!$user){
             echo json_encode(['status' => 'error', 'message' => 'Aktif bir oturum bulunamadı.']);
             return;
@@ -240,7 +246,12 @@ class Api extends CI_Controller {
             'name' => $data['name'] ?? $user['name'],
             'mail' => $data['mail'] ?? $user['mail'],
             'address' => $data['adress'] ?? $user['address'],
-            'password' => $data['password'] ?? $user['password']
+            'password' => $data['password'] ?? $user['password'],
+			'tel' => $data['tel'] ?? $user['tel'],
+			'birthDate' => $data['birthDate'] ?? $user['birthDate'],
+			'info' => $data['info'] ?? $user['info'],
+			'promotional' => $data['promotional'] ?? $user['promotional']
+
         ];
 
         $result = $this->DbModel->update_user($user['user_id'], $updateData);
@@ -482,6 +493,31 @@ class Api extends CI_Controller {
             'orders' => $orders
         ]);
     }
+
+	public function update_order(){
+		$data = $this->JSON_DATA;
+    	$items = $data['items'];
+    	unset($data['items']);
+	}
+
+	public function delete_order(){
+		$data = $this->JSON_DATA[0] ?? 0;
+		$user = $this->session->userdata('user');
+		if($user && $user['role'] == "1")
+		{
+			$this->DbModel->delete_order($data);
+			echo json_encode([
+				"status" 	=> "success",
+				"message" 	=> "Seçili sipariş başarıyla silindi."
+			]);
+		}
+		else{
+			echo json_encode([
+				"status" 	=> "error",
+				"message" 	=> "Yetkisiz işlem tespit edildi."
+			]);
+		}
+	}
 
     // MISC FUNCTIONS
 

@@ -124,6 +124,7 @@
 </template>
 
 <script>
+import { useOrdersStore } from "@/store/OrdersStore";
 import axios from "axios";
 
 export default {
@@ -135,6 +136,10 @@ export default {
       statusFilter: "",
       isLoading: false
     };
+  },
+  setup(){
+    const OrderStore = useOrdersStore();
+    return { OrderStore };
   },
   computed: {
     filteredOrders() {
@@ -165,12 +170,7 @@ export default {
     },
     deleteOrder(id) {
       if (confirm(`#${id} numaralı siparişi silmek istediğinize emin misiniz?`)) {
-        axios
-          .post("http://localhost:8080/api/delete_order", { id })
-          .then(() => {
-            this.orders = this.orders.filter(o => o.order_id !== id);
-          })
-          .catch(err => console.error("Silme hatası:", err));
+        this.OrderStore.delete_order(id);
       }
     },
     formatDate(date) {

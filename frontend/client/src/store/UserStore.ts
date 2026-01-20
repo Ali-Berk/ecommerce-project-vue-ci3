@@ -11,7 +11,9 @@ interface User {
   token?: string;      
   guest: number;        
   tel: string;
-  birthday:Date;         
+  birthday:Date;   
+  info:string;
+  promotional:boolean;      
 }
 export const useUserStore = defineStore('User',{
     state: () => ({
@@ -56,6 +58,12 @@ export const useUserStore = defineStore('User',{
         },
         removeFromCart(product_id:number){
             this.cart.splice(product_id,1);
+        },
+
+        updateProfile(data:User){
+            axios.post("http://localhost:8080/api/update_profile", data, {withCredentials:true});
+            console.log(data);
+
         }
     }
 

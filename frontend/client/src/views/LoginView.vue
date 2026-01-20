@@ -113,7 +113,6 @@ export default {
       } finally {
         this.isLoading = false;
       }
-
       if (response?.status == "success") {
         this.$router.push('/');
         window.dispatchEvent(new CustomEvent('session-created'));

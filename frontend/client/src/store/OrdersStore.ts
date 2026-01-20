@@ -55,6 +55,15 @@ export const useOrdersStore = defineStore('Orders', {
         find_order(order_id: number) {
             const selection = this.order_data.find(o => o.order_id == order_id) || null;
             this.selected_order = selection || null;
+            return selection;
+        },
+
+        update_order(data:Order){
+            axios.post("http://localhost:8080/api/update_order", data, {withCredentials:true});
+        },
+
+        delete_order(order_id:number){
+            axios.post("http://localhost:8080/api/delete_order", order_id, {withCredentials:true}).catch(err => console.log(err));
         }
     },
 })

@@ -4,8 +4,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $config = array(
     'protocol' => 'smtp',
     'smtp_host' => 'smtp.gmail.com',
-    'smtp_user' => 'asdasddsad',
-    'smtp_pass' => 'asdasdasd',
+    'smtp_user' => 'asdasdas@gmasdlkasş.com',
+    'smtp_pass' => 'sadlasşdlasd',
     'smtp_port' => 587,
     'smtp_crypto' => 'tls',
     'mailtype' => 'html',

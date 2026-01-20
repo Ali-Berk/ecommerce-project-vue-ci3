@@ -110,17 +110,21 @@
                   </div>
                 </div>
                  <div class="col-12">
-                   <label class="d-block text-muted small fw-bold mb-2">Cinsiyet</label>
+                   <label class="d-block text-muted small fw-bold mb-2">Bilgilendirme Türü</label>
                    <div class="d-flex gap-3">
                      <div class="form-check custom-radio">
-                        <input class="form-check-input" type="radio" name="gender" id="genderM" value="male" v-model="form.gender" :disabled="!isEditing">
-                        <label class="form-check-label" for="genderM">Erkek</label>
+                        <input class="form-check-input" type="radio" name="info" id="Mail" value="Mail" v-model="form.info" :disabled="!isEditing">
+                        <label class="form-check-label" for="Mail">Mail</label>
                      </div>
                      <div class="form-check custom-radio">
-                        <input class="form-check-input" type="radio" name="gender" id="genderF" value="female" v-model="form.gender" :disabled="!isEditing">
-                        <label class="form-check-label" for="genderF">Kadın</label>
+                        <input class="form-check-input" type="radio" name="info" id="SMS" value="SMS" v-model="form.info" :disabled="!isEditing">
+                        <label class="form-check-label" for="SMS">SMS</label>
                      </div>
-                   </div>
+                    </div>
+                    <div class="col-12 mt-2">
+                      <input class="form-check-input" type="checkbox" name="promotional" id="promotional" value="true" v-model="form.promotional" :disabled="!isEditing">
+                      <label class="form-check-label" for="promotional">Kampanyalardan Haberdar Olmak İstiyorum.</label>
+                    </div>
                  </div>
               </div>
 
@@ -140,6 +144,7 @@
 <script>
 import axios from 'axios';
 import { useOrdersStore } from '@/store/OrdersStore';
+import { useUserStore } from '@/store/UserStore';
 export default {
   name: "ProfileView",
   props: ['user'],
@@ -151,7 +156,8 @@ export default {
         mail: this.user?.mail || '',
         tel: this.user?.tel || '',
         birthDate: this.user?.birthDate || '',
-        gender: this.user?.gender || 'male'
+        info: this.user?.info || 'SMS',
+        promotional: this.user?.promotional || 'false',
       }
     };
   },
@@ -169,6 +175,9 @@ export default {
     OrdersStore() {
       return useOrdersStore();
     },
+    userStore(){
+      return useUserStore();
+    }
   },
   methods: {
     logout() {
@@ -176,6 +185,7 @@ export default {
         .then(() => location.reload());
     },
     saveProfile() {
+      this.userStore.updateProfile(this.form);
       console.log("Kaydedilen veriler:", this.form);
       this.isEditing = false;
     },

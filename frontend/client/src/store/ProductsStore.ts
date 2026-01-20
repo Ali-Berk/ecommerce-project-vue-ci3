@@ -1,6 +1,14 @@
 import {defineStore} from 'pinia';
 import axios from "axios";
 
+interface Product{
+    product_id:number;
+    title:string;
+    category:string;
+    thumbnail:string;
+    price:symbol;
+    
+}
 export const useProductStore = defineStore('Products', {
     state: () => ({
         status:'error',

@@ -54,7 +54,6 @@ class DbModel extends CI_Model {
     public function login($data = array()){
     	$this->db->where('mail', $data['mail']);
     	$query = $this->db->get($this->tableUsers); 
-
     	if($query->num_rows() == 1){
         	$user = $query->row(); 
 	        if($data['password'] == $user->password){
@@ -186,6 +185,14 @@ public function get_all_orders(){
 	return $raw;
 }
 
+public function delete_order($order_id){
+	$this->db->trans_start();
+	$this->db->where('order_id', $order_id)->delete($this->tableOrders);
+	$this->db->where('order_fk', $order_id)->delete($this->tableOrder_Items);
+	$this->db->trans_complete();
+	return $this->db->trans_status();
+}
+
 public function addNewProduct($product = array()){
     $this->db->insert($this->tableProducts, $product);
 }
@@ -244,7 +251,6 @@ public function createOrder($user,$items,$total){
 
     public function AddProductImages($data,$product_id){
         $data["product_fk"] = $product_id;
-        var_dump($data);
         return $this->db->insert($this->tableProducts_Images, $data);
 
     }
