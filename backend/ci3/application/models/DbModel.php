@@ -67,8 +67,7 @@ class DbModel extends CI_Model {
         $this->db->insert($this->tableUsers, $user);
     }
 
-    public function update_user($user_id, $data = array())
-    {
+    public function update_user($user_id, $data = array()){
         return $this->db->where('user_id', $user_id)->update('users', $data);
     }
 
@@ -150,27 +149,58 @@ class DbModel extends CI_Model {
         return $product;
     }
 
-public function get_orders($id){
-
-    $this->db->select('orders.order_id,orders.price as total_price,orders.order_address,orders.status,orders.order_mail,orders.order_name, orders.order_date,
-     products.title, products.price, products.thumbnail, products.stock, GROUP_CONCAT(products.title) as product_titles,
-      order_items.qty');
+	public function get_orders($id)
+{
+    $this->db->select('
+        orders.order_id, orders.price as total_price, orders.order_address, orders.order_tel, 
+        orders.status, orders.order_mail, orders.order_name, orders.order_date,
+        products.title, products.thumbnail,
+        order_items.qty, order_items.item_price
+    ');
     $this->db->from($this->tableOrders);
     $this->db->join($this->tableOrder_Items, 'order_items.order_fk = orders.order_id', 'left');
     $this->db->join($this->tableProducts, 'products.product_id = order_items.product_fk', 'left');
     $this->db->where('orders.user_fk', $id);
-    $this->db->group_by('orders.order_id');
+    $this->db->order_by('orders.order_id', 'DESC');
 
-    $result = $this->db->get();
-    if(!$result) {
-        log_message('error', 'DB Error: ' . $this->db->last_query());
+    $query = $this->db->get();
+
+    if (!$query) {
         return false;
     }
 
-    return $result->result_array();
+    $result = [];
+    foreach ($query->result_array() as $row) {
+        $order_id = $row['order_id'];
+
+        if (!isset($result[$order_id])) {
+            $result[$order_id] = [
+                'order_id'      => $row['order_id'],
+                'total_price'   => $row['total_price'],
+				'order_name'	=> $row['order_name'],
+				'order_mail'	=> $row['order_mail'],
+				'order_tel'		=> $row['order_tel'],
+                'order_address' => $row['order_address'],
+                'status'        => $row['status'],
+                'order_date'          => $row['order_date'],
+                'items'         => []
+            ];
+        }
+
+        if ($row['title']) { 
+            $result[$order_id]['items'][] = [
+                'title'     => $row['title'],
+                'price'     => $row['item_price'],
+                'qty'       => $row['qty'],
+                'thumbnail' => $row['thumbnail']
+            ];
+        }
+    }
+
+    return array_values($result);
 }
 
-public function get_all_orders(){
+	public function get_all_orders(){
 	$raw = $this->db->select('orders.*,
 	 users.user_id,users.name,
 	 order_items.qty,
@@ -183,67 +213,75 @@ public function get_all_orders(){
 	 ->order_by('orders.order_id DESC')
 	 ->get()->result_array();
 	return $raw;
-}
+	}
 
-public function delete_order($order_id){
-	$this->db->trans_start();
-	$this->db->where('order_id', $order_id)->delete($this->tableOrders);
-	$this->db->where('order_fk', $order_id)->delete($this->tableOrder_Items);
-	$this->db->trans_complete();
-	return $this->db->trans_status();
-}
+	public function delete_order($order_id){
+		$this->db->trans_start();
+		$this->db->where('order_id', $order_id)->delete($this->tableOrders);
+		$this->db->where('order_fk', $order_id)->delete($this->tableOrder_Items);
+		$this->db->trans_complete();
+		return $this->db->trans_status();
+	}
 
-public function addNewProduct($product = array()){
-    $this->db->insert($this->tableProducts, $product);
-}
+	public function update_order($order, $order_items){
+		$this->db-trans_start();
+		$this->db->where('order_id', $order['order_id'])->update($this->tableOrders, $order);
+		$this->db->where('order_fk', $order['order_id']);
+		$this->trans_complate();
+		return $this->db->trans_status();
+	}
 
-public function getCategories(){
-    return $this->db->get($this->tableCategories)->result_array();
-}
+	public function addNewProduct($product = array()){
+    	$this->db->insert($this->tableProducts, $product);
+	}
 
-public function deleteProduct($where = array()){
-    return $this->db->where($where)->delete($this->tableProducts);
-}
+	public function getCategories(){
+    	return $this->db->get($this->tableCategories)->result_array();
+	}
 
-public function updateProduct($id, $data = array())
-{
-    return $this->db->where('product_id', $id)->update($this->tableProducts,$data);
-}
+	public function deleteProduct($where = array()){
+    	return $this->db->where($where)->delete($this->tableProducts);
+	}
 
-public function getUserByToken($token){
-    return $this->db->where('token', $token)->get($this->tableUsers)->row();
-}
+	public function updateProduct($id, $data = array()){
+    	return $this->db->where('product_id', $id)->update($this->tableProducts,$data);
+	}
 
-public function verifyUser($token){
+	public function getUserByToken($token){
+    	return $this->db->where('token', $token)->get($this->tableUsers)->row();
+	}
+
+	public function verifyUser($token){
     $data=[
         'is_verified' => 1,
         'token' => null,
     ];
     return $this->db->where('token', $token)->update($this->tableUsers, $data);
-}
+	}
 
-public function createOrder($user,$items,$total){
-     $orderData = [
-        'user_fk' => $user['user_id'], 
-        'order_address' => $user['address'],
-        'price' => $total,
-        'status' => 'pending', 
-        'order_mail' => $user['mail'],
-        'order_name' => $user['name']
-    ];
+	public function createOrder($user,$items,$total){
+     	$orderData = [
+        	'user_fk' 		=> $user['user_id'], 
+	        'order_address' => $user['address'],
+    	    'price' 		=> $total,
+        	'status' 		=> 'Sipariş Alındı', 
+	        'order_mail' 	=> $user['mail'],
+    	    'order_name' 	=> $user['name'],
+			'order_tel'		=> $user['tel']
+    	];
 
-    $this->db->insert($this->tableOrders, $orderData);
-    $order_id = $this->db->insert_id();
-    foreach($items as $item){
-        $orderItems = [
-            'order_fk' => $order_id,
-            'product_fk' => $item['product_id'],
-            'qty' => $item['qty'],
-        ];
-        $this->db->insert($this->tableOrder_Items, $orderItems);
-    }
-	return $orderData;
-}
+    	$this->db->insert($this->tableOrders, $orderData);
+    	$order_id = $this->db->insert_id();
+    	foreach($items as $item){
+        	$orderItems = [
+            	'order_fk' => $order_id,
+            	'product_fk' => $item['product_id'],
+            	'qty' => $item['qty'],
+        	];
+        	$this->db->insert($this->tableOrder_Items, $orderItems);
+    	}
+		return $orderData;
+	}
 
     public function createGuestAccount($userData){
         return $this->db->insert($this->tableUsers, $userData);
@@ -255,8 +293,7 @@ public function createOrder($user,$items,$total){
 
     }
 
-    public function UpdateProductImages($data)
-    {
+    public function UpdateProductImages($data){
         foreach ($data as $image){
             $this->db->where('image_id', $image["image_id"])->update($this->tableProducts_Images, $image);
         }

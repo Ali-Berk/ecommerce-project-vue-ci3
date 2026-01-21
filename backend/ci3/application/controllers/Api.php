@@ -465,13 +465,13 @@ class Api extends CI_Controller {
     }
 
     public function orders(){
-        
-        if($this->session->userdata('user'))
-        {
+
+		if($this->session->userdata('user')){
+
             $user = $this->session->userdata('user');
             $user_id = $user['user_id'];
             $orders = $this->DbModel->get_orders($user_id);
-
+		
             echo json_encode([
                 'status' 	=> 'success',
 				'message'	=> 'Siparişler Başarıyla Listelendi.',
@@ -498,6 +498,9 @@ class Api extends CI_Controller {
 		$data = $this->JSON_DATA;
     	$items = $data['items'];
     	unset($data['items']);
+		var_dump($data);
+		var_dump($items);
+
 	}
 
 	public function delete_order(){

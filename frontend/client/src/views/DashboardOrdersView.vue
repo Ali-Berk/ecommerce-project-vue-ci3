@@ -31,10 +31,10 @@
           <div class="col-md-3 ms-auto">
             <select v-model="statusFilter" class="form-select rounded-pill bg-light border-0 py-2 cursor-pointer">
               <option value="">Tüm Durumlar</option>
-              <option value="pending">Beklemede</option>
-              <option value="shipped">Kargolandı</option>
-              <option value="finished">Tamamlandı</option>
-              <option value="canceled">İptal Edildi</option>
+              <option value="Sipariş Alındı">Beklemede</option>
+              <option value="Kargoya Verildi">Kargolandı</option>
+              <option value="Teslim Edildi">Tamamlandı</option>
+              <option value="İptal Edildi">İptal Edildi</option>
             </select>
           </div>
         </div>
@@ -82,12 +82,12 @@
                 <td>
                   <span class="badge rounded-pill px-3 py-2 status-badge" :class="getStatusClass(o.status)">
                     <i class="bi me-1" :class="getStatusIcon(o.status)"></i>
-                    {{ getStatusLabel(o.status) }}
+                    {{o.status }}
                   </span>
                 </td>
 
                 <td>
-                  <span class="text-muted small">{{ formatDate(o.created_at) }}</span>
+                  <span class="text-muted small">{{ formatDate(o.order_date) }}</span>
                 </td>
 
                 <td class="text-end pe-4">
@@ -187,28 +187,21 @@ export default {
     },
     getStatusClass(status) {
       switch (status) {
-        case 'pending': return 'bg-warning-subtle text-warning-emphasis';
-        case 'shipped': return 'bg-info-subtle text-info-emphasis';
-        case 'finished': return 'bg-success-subtle text-success-emphasis';
-        case 'canceled': return 'bg-danger-subtle text-danger-emphasis';
+        case 'Kargoya Verildi': return 'bg-warning-subtle text-warning-emphasis';
+        case 'Hazırlanıyor': return 'bg-info-subtle text-info-emphasis';
+        case 'Teslim Edildi': return 'bg-success-subtle text-success-emphasis';
+        case 'İptal Edildi': return 'bg-danger-subtle text-danger-emphasis';
         default: return 'bg-secondary-subtle text-secondary';
       }
     },
-    getStatusLabel(status) {
-      const map = {
-        'pending': 'Beklemede',
-        'shipped': 'Kargolandı',
-        'finished': 'Tamamlandı',
-        'canceled': 'İptal Edildi'
-      };
-      return map[status] || status;
-    },
+
     getStatusIcon(status) {
        switch (status) {
-        case 'pending': return 'bi-hourglass-split';
-        case 'shipped': return 'bi-truck';
-        case 'finished': return 'bi-check-circle-fill';
-        case 'canceled': return 'bi-x-circle-fill';
+        case 'Sipariş Alındı': return 'bi-hourglass-split';
+        case 'Hazırlanıyor': return 'bi bi-box-seam';
+        case 'Kargoya Verildi': return 'bi-truck';
+        case 'Teslim Edildi': return 'bi-check-circle-fill';
+        case 'İptal Edildi': return 'bi-x-circle-fill';
         default: return 'bi-circle';
       }
     }

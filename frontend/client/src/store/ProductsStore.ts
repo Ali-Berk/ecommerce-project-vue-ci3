@@ -12,7 +12,7 @@ interface Product{
 export const useProductStore = defineStore('Products', {
     state: () => ({
         status:'error',
-        products:[{product_id:1,title:"err",category:"err",thumbnail:"https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",price:1,active:1, stock:0,images:[{image_id:0,image_url:"err",alt_text:"err"}]}],
+        products:[{product_id:1,title:"err",category:"err",thumbnail:"https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",price:1,active:1, stock:1,images:[{image_id:0,image_url:"err",alt_text:"err"}]}],
         categories:[{category_id:0,category_name:"placeholder",categorySlug:"placeholder"}]
 
     }),

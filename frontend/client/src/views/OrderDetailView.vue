@@ -72,23 +72,22 @@
               <div class="card-header bg-white border-bottom p-4">
                 <h6 class="fw-bold mb-0">Sipariş İçeriği</h6>
               </div>
-              <div class="card-body p-0">
+              <div class="card-body p-0" v-for="(item, index) in OrderStore.selected_order.items" :key="index">
                 <div class="d-flex align-items-center p-4 border-bottom last-no-border item-row">
-                  <div class="img-wrapper rounded-3 border bg-light flex-shrink-0">
-                    <img :src="OrderStore.selected_order.thumbnail" alt="Ürün" class="img-fluid object-fit-contain w-100 h-100">
-                  </div>
-                  <div class="ms-3 flex-grow-1">
-                    <h6 class="fw-bold mb-1">{{ OrderStore.selected_order.title }}</h6>
-                    <div class="text-muted small mb-2">
-                       Birim Fiyat: {{ OrderStore.selected_order.price }} ₺
-                    </div>
-                  </div>
-                  <div class="text-end">
-                    <div class="text-muted small mb-1">{{ OrderStore.selected_order.qty || 1 }} Adet</div>
-                    <div class="fw-bold fs-5">{{ OrderStore.selected_order.total_price }} ₺</div>
+                <div class="img-wrapper rounded-3 border bg-light flex-shrink-0">
+                  <img :src="item.thumbnail" alt="Ürün" class="img-fluid object-fit-contain w-100 h-100">
+                </div>
+                <div class="ms-3 flex-grow-1">
+                  <h6 class="fw-bold mb-1">{{ item.title }}</h6>
+                  <div class="text-muted small mb-2">
+                    Birim Fiyat: {{ item.price }} ₺
                   </div>
                 </div>
-
+                <div class="text-end">
+                  <div class="text-muted small mb-1">{{ item.qty }} Adet</div>
+                    <div class="fw-bold fs-5">{{ (item.qty * item.price).toFixed(2) }} ₺</div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -144,8 +143,8 @@
                   </div>
                   <div>
                     <small class="text-muted fw-bold d-block mb-1">MÜŞTERİ</small>
-                    <p class="mb-0 text-dark small">{{ OrderStore.selected_order.order_name || '-' }}</p>
-                    <p class="mb-0 text-muted small">{{ OrderStore.selected_order.order_mail || '-' }}</p>
+                    <p class="mb-0 text-dark small">{{ UserStore.user.name || '-' }}</p>
+                    <p class="mb-0 text-muted small">{{ UserStore.user.tel || UserStore.user.mail || '-' }}</p>
                   </div>
                 </div>
 
@@ -162,11 +161,15 @@
 
 <script>
 import { useOrdersStore } from '@/store/OrdersStore';
+import { useUserStore } from '@/store/UserStore';
 
 export default {
   computed: {
     OrderStore() {
       return useOrdersStore();
+    },
+    UserStore(){
+      return useUserStore();
     }
   },
   methods: {

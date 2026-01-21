@@ -2,15 +2,24 @@ import { defineStore } from 'pinia';
 import axios from "axios";
 import { stringifyQuery } from 'vue-router';
 
+interface Order_Item{
+	title:string;
+	price:number;
+	qty:number;
+	thumbnail:string;
+}
 interface Order {
     order_id: number;
-    order_items_id: number;
-    total_price: number;
+    order_items_id: any;
+    price: number;
     status: string;
     order_mail: string;
     order_name: string;
+	order_address:string;
+	order_tel:string;
     user_name: string;
     order_date: string;
+	items: Order_Item;
 }
 
 export const useOrdersStore = defineStore('Orders', {
@@ -22,9 +31,9 @@ export const useOrdersStore = defineStore('Orders', {
     }),
     getters: {
         activeOrderCount(state): number {
-            const targetStatuses = ['ongoing', 'pending', 'hazırlanıyor', 'kargoda']; 
+            const targetStatuses = ["Sipariş Alındı", "Hazırlanıyor", "Kargoya Verildi", "Teslim Edildi", "İptal Edildi"]; 
             return state.order_data.filter(order => 
-                targetStatuses.includes(order.status.toLowerCase())
+                targetStatuses.includes(order.status)
             ).length;
         }
     },
@@ -32,7 +41,7 @@ export const useOrdersStore = defineStore('Orders', {
         async get_orders() {
             try {
                 const res = await axios.get("http://localhost:8080/api/orders", { withCredentials: true });
-                
+                console.log(res.data);
                 const formattedData = res.data.data.map((order: any) => {
                     return {
                         ...order,

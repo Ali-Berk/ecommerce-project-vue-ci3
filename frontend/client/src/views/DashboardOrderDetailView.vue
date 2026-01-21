@@ -6,8 +6,8 @@
         <div class="spinner-border text-primary" role="status"></div>
         <p class="text-muted mt-3 fw-medium">Sipariş verileri getiriliyor...</p>
       </div>
-
       <div v-else-if="localOrder && localOrder.order_id">
+        {{ localOrder }}
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
           <div class="d-flex align-items-center gap-3">
             <button @click="$router.go(-1)" class="btn btn-light border rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center" style="width:45px; height:45px;">
@@ -207,15 +207,12 @@ export default {
     },
     normalizedItems() {
       if (!this.localOrder) return [];
-      
       if (Array.isArray(this.localOrder.items) && this.localOrder.items.length > 0) {
         return this.localOrder.items;
       }
-      
       if (this.localOrder.title) {
         return [this.localOrder];
       }
-
       return [];
     },
     calculateSubTotal() {
