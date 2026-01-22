@@ -76,7 +76,7 @@
                 </td>
 
                 <td>
-                  <span class="fw-bold text-dark">{{ o.price }} ₺</span>
+                  <span class="fw-bold text-dark">{{ o.total_price }} ₺</span>
                 </td>
 
                 <td>

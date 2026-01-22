@@ -149,56 +149,56 @@ class DbModel extends CI_Model {
         return $product;
     }
 
-	public function get_orders($id)
-{
-    $this->db->select('
-        orders.order_id, orders.price as total_price, orders.order_address, orders.order_tel, 
-        orders.status, orders.order_mail, orders.order_name, orders.order_date,
-        products.title, products.thumbnail,
-        order_items.qty, order_items.item_price
-    ');
-    $this->db->from($this->tableOrders);
-    $this->db->join($this->tableOrder_Items, 'order_items.order_fk = orders.order_id', 'left');
-    $this->db->join($this->tableProducts, 'products.product_id = order_items.product_fk', 'left');
-    $this->db->where('orders.user_fk', $id);
-    $this->db->order_by('orders.order_id', 'DESC');
+	public function get_orders($id){
+    	$this->db->select('
+        	orders.order_id, orders.total_price, orders.order_address, orders.order_tel, 
+	        orders.status, orders.order_mail, orders.order_name, orders.order_date,
+    	    products.title, products.thumbnail,
+        	order_items.id, order_items.qty, order_items.price
+    	');
+		$this->db->from($this->tableOrders);
+		$this->db->join($this->tableOrder_Items, 'order_items.order_fk = orders.order_id', 'left');
+    	$this->db->join($this->tableProducts, 'products.product_id = order_items.product_fk', 'left');
+    	$this->db->where('orders.user_fk', $id);
+    	$this->db->order_by('orders.order_id', 'DESC');
 
-    $query = $this->db->get();
+    	$query = $this->db->get();
 
-    if (!$query) {
-        return false;
-    }
+    	if (!$query) {
+    	    return false;
+    	}
 
-    $result = [];
-    foreach ($query->result_array() as $row) {
-        $order_id = $row['order_id'];
+    	$result = [];
+    	foreach ($query->result_array() as $row) {
+    	    $order_id = $row['order_id'];
 
-        if (!isset($result[$order_id])) {
-            $result[$order_id] = [
-                'order_id'      => $row['order_id'],
-                'total_price'   => $row['total_price'],
-				'order_name'	=> $row['order_name'],
-				'order_mail'	=> $row['order_mail'],
-				'order_tel'		=> $row['order_tel'],
-                'order_address' => $row['order_address'],
-                'status'        => $row['status'],
-                'order_date'          => $row['order_date'],
-                'items'         => []
-            ];
-        }
+    	    if (!isset($result[$order_id])) {
+    	        $result[$order_id] = [
+    	            'order_id'      => $row['order_id'],
+    	            'total_price'   => $row['total_price'],
+					'order_name'	=> $row['order_name'],
+					'order_mail'	=> $row['order_mail'],
+					'order_tel'		=> $row['order_tel'],
+    	            'order_address' => $row['order_address'],
+    	            'status'        => $row['status'],
+    	            'order_date'          => $row['order_date'],
+    	            'items'         => []
+    	        ];
+    	    }
 
-        if ($row['title']) { 
-            $result[$order_id]['items'][] = [
-                'title'     => $row['title'],
-                'price'     => $row['item_price'],
-                'qty'       => $row['qty'],
-                'thumbnail' => $row['thumbnail']
-            ];
-        }
-    }
+    	    if ($row['title']) { 
+    	        $result[$order_id]['items'][] = [
+					'id'		=> $row['id'],
+    	            'title'     => $row['title'],
+    	            'price'     => $row['price'],
+    	            'qty'       => $row['qty'],
+    	            'thumbnail' => $row['thumbnail']
+    	        ];
+    	    }
+    	}
 
-    return array_values($result);
-}
+    	return array_values($result);
+	}
 
 	public function get_all_orders(){
 	$raw = $this->db->select('orders.*,
@@ -217,18 +217,25 @@ class DbModel extends CI_Model {
 
 	public function delete_order($order_id){
 		$this->db->trans_start();
-		$this->db->where('order_id', $order_id)->delete($this->tableOrders);
 		$this->db->where('order_fk', $order_id)->delete($this->tableOrder_Items);
+		$this->db->where('order_id', $order_id)->delete($this->tableOrders);
 		$this->db->trans_complete();
 		return $this->db->trans_status();
 	}
 
 	public function update_order($order, $order_items){
-		$this->db-trans_start();
+		$this->db->trans_start();
 		$this->db->where('order_id', $order['order_id'])->update($this->tableOrders, $order);
-		$this->db->where('order_fk', $order['order_id']);
-		$this->trans_complate();
-		return $this->db->trans_status();
+		print_r($this->db->error());
+		foreach($order_items as $row){
+			//DÜZELTİLECEK
+			unset($row['title']);
+			unset($row['thumbnail']);
+			$this->db->where('order_fk', $order['order_id'])->where('id', $row['id'])->update($this->tableOrder_Items, $row);
+			print_r($this->db->error());
+		}
+		$this->db->trans_complete();
+		var_dump($this->db->trans_status());
 	}
 
 	public function addNewProduct($product = array()){
@@ -263,7 +270,7 @@ class DbModel extends CI_Model {
      	$orderData = [
         	'user_fk' 		=> $user['user_id'], 
 	        'order_address' => $user['address'],
-    	    'price' 		=> $total,
+    	    'total_price' 		=> $total,
         	'status' 		=> 'Sipariş Alındı', 
 	        'order_mail' 	=> $user['mail'],
     	    'order_name' 	=> $user['name'],
@@ -277,6 +284,7 @@ class DbModel extends CI_Model {
             	'order_fk' => $order_id,
             	'product_fk' => $item['product_id'],
             	'qty' => $item['qty'],
+				'price' => $item['price']
         	];
         	$this->db->insert($this->tableOrder_Items, $orderItems);
     	}

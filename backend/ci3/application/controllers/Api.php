@@ -429,10 +429,10 @@ class Api extends CI_Controller {
     // ORDER FUNCTIONS
 
     public function createOrder(){
+		$data = $this->JSON_DATA;
         $customerData = $this->JSON_DATA['customer'];
         $itemsData = $this->JSON_DATA['items'];
         $totalPriceData = $this->JSON_DATA['total'];
-        var_dump($customerData);
 		if($itemsData && $totalPriceData && $customerData){
 
 			if($this->session->userdata('user')){
@@ -498,8 +498,7 @@ class Api extends CI_Controller {
 		$data = $this->JSON_DATA;
     	$items = $data['items'];
     	unset($data['items']);
-		var_dump($data);
-		var_dump($items);
+		echo $this->DbModel->update_order($data,$items);
 
 	}
 

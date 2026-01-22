@@ -7,7 +7,6 @@
         <p class="text-muted mt-3 fw-medium">Sipariş verileri getiriliyor...</p>
       </div>
       <div v-else-if="localOrder && localOrder.order_id">
-        {{ localOrder }}
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
           <div class="d-flex align-items-center gap-3">
             <button @click="$router.go(-1)" class="btn btn-light border rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center" style="width:45px; height:45px;">
@@ -26,8 +25,8 @@
             <button class="btn btn-outline-secondary rounded-pill px-4 btn-sm fw-bold">
               <i class="bi bi-printer me-2"></i>Yazdır
             </button>
-            <button class="btn btn-outline-danger rounded-pill px-4 btn-sm fw-bold">
-              <i class="bi bi-x-circle me-2"></i>Siparişi İptal Et
+            <button class="btn btn-outline-danger rounded-pill px-4 btn-sm fw-bold" @click="delete_order()">
+              <i class="bi bi-x-circle me-2"></i>Siparişi Sil!
             </button>
           </div>
         </div>
@@ -298,8 +297,15 @@ export default {
     resetChanges() {
         this.localOrder = JSON.parse(this.originalOrderStr);
         this.isModified = false;
+    },
+    delete_order(){
+      if(window.confirm("Bu siparişi silmek istediğinizden emin misiniz?")){
+        this.OrderStore.delete_order(this.localOrder.order_id);
+      }
+
     }
   },
+
   mounted() {
     this.loading = true;
     const orderId = this.$route.params.slug || this.$route.params.id;

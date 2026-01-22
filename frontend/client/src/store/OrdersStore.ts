@@ -3,6 +3,7 @@ import axios from "axios";
 import { stringifyQuery } from 'vue-router';
 
 interface Order_Item{
+    id:number;
 	title:string;
 	price:number;
 	qty:number;
@@ -11,7 +12,7 @@ interface Order_Item{
 interface Order {
     order_id: number;
     order_items_id: any;
-    price: number;
+    total_price: number;
     status: string;
     order_mail: string;
     order_name: string;

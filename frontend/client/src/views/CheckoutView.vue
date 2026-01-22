@@ -31,6 +31,7 @@
               </div>
               <div class="card-body p-4">
                 <div class="row g-3">
+                  
                   <div class="col-md-6">
                     <label class="form-label fw-medium small text-muted">Ad Soyad</label>
                     <div class="input-group">
@@ -38,13 +39,23 @@
                       <input type="text" class="form-control bg-light border-start-0" v-model="customer.name" placeholder="Adınız Soyadınız" required>
                     </div>
                   </div>
+
                   <div class="col-md-6">
+                    <label class="form-label fw-medium small text-muted">Telefon</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-end-0"><i class="bi bi-telephone"></i></span>
+                      <input type="tel" class="form-control bg-light border-start-0" v-model="customer.tel" placeholder="05XX XXX XX XX" required>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
                     <label class="form-label fw-medium small text-muted">E-posta Adresi</label>
                     <div class="input-group">
                       <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope"></i></span>
                       <input type="email" class="form-control bg-light border-start-0" v-model="customer.mail" placeholder="ornek@mail.com" required>
                     </div>
                   </div>
+
                   <div class="col-12">
                     <label class="form-label fw-medium small text-muted">Teslimat Adresi</label>
                     <div class="input-group">
@@ -52,6 +63,7 @@
                       <textarea class="form-control bg-light border-start-0" v-model="customer.address" rows="3" placeholder="Mahalle, Sokak, No, İlçe/İl..." required></textarea>
                     </div>
                   </div>
+
                 </div>
               </div>
             </div>
@@ -188,6 +200,7 @@ export default defineComponent({
     const customer = reactive({
         name: UserStore.user?.name || '',
         mail: UserStore.user?.mail || '',
+        tel: UserStore.user?.tel || '', // YENİ: Telefon verisi tanımlandı
         address: UserStore.user?.address || ''
     });
 
