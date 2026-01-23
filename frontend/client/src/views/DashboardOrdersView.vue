@@ -66,10 +66,10 @@
                 <td>
                   <div class="d-flex align-items-center">
                     <div class="avatar-circle me-3 bg-primary-subtle text-primary fw-bold">
-                      {{ getInitials(o.name) }}
+                      {{ getInitials(o.order_name) }}
                     </div>
                     <div>
-                      <h6 class="mb-0 text-dark fw-semibold" style="font-size: 0.95rem;">{{ o.name }}</h6>
+                      <h6 class="mb-0 text-dark fw-semibold" style="font-size: 0.95rem;">{{ o.order_name }}</h6>
                       <small class="text-muted d-block text-truncate" style="max-width: 150px;">{{ o.order_address }}</small>
                     </div>
                   </div>
@@ -87,7 +87,7 @@
                 </td>
 
                 <td>
-                  <span class="text-muted small">{{ formatDate(o.order_date) }}</span>
+                  <span class="text-muted small">{{ o.order_date }}</span>
                 </td>
 
                 <td class="text-end pe-4">
@@ -160,8 +160,7 @@ export default {
     async loadOrders() {
       this.isLoading = true;
       try {
-        const res = await axios.get("http://localhost:8080/api/get_all_orders");
-        this.orders = res.data.orders || []; 
+        this.orders = this.OrderStore.order_data;
       } catch (err) {
         console.error("Siparişler yüklenemedi:", err);
       } finally {
@@ -172,12 +171,6 @@ export default {
       if (confirm(`#${id} numaralı siparişi silmek istediğinize emin misiniz?`)) {
         this.OrderStore.delete_order(id);
       }
-    },
-    formatDate(date) {
-      if(!date) return '-';
-      return new Date(date).toLocaleDateString("tr-TR", {
-        day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit'
-      });
     },
     getInitials(name) {
       if (!name) return "?";

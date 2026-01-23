@@ -42,7 +42,6 @@ export const useOrdersStore = defineStore('Orders', {
         async get_orders() {
             try {
                 const res = await axios.get("http://localhost:8080/api/orders", { withCredentials: true });
-                console.log(res.data);
                 const formattedData = res.data.data.map((order: any) => {
                     return {
                         ...order,

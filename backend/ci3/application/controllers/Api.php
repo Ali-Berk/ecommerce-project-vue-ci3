@@ -465,8 +465,16 @@ class Api extends CI_Controller {
     }
 
     public function orders(){
-
-		if($this->session->userdata('user')){
+		$user = $this->session->userdata('user');
+		if($user['role'] == 1){
+			$orders = $this->DbModel->get_all_orders();
+			echo json_encode([
+				'status' => 'success',
+				'data' => $orders
+			]);
+			return;
+		}
+		if($user){
 
             $user = $this->session->userdata('user');
             $user_id = $user['user_id'];
@@ -487,13 +495,21 @@ class Api extends CI_Controller {
     }
 
     public function get_all_orders(){
-        $orders = $this->DbModel->get_all_orders();
-        echo json_encode([
-            'status' => 'success',
-            'orders' => $orders
-        ]);
+		$user = $this->session->userdata('user');
+		if($user['role'] == 1){
+			$orders = $this->DbModel->get_all_orders();
+			echo json_encode([
+				'status' => 'success',
+				'data' => $orders
+			]);
+		}
+		else{
+			echo json_encode([
+				'status' => 'error',
+				'message' => 'yetkisiz işlem tespit edildi'
+			]);
+		}
     }
-
 	public function update_order(){
 		$data = $this->JSON_DATA;
     	$items = $data['items'];

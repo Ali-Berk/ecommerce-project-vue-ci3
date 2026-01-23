@@ -199,22 +199,57 @@ class DbModel extends CI_Model {
 
     	return array_values($result);
 	}
-
+	//Admin
 	public function get_all_orders(){
-	$raw = $this->db->select('orders.*,
-	 users.user_id,users.name,
-	 order_items.qty,
-	 GROUP_CONCAT(products.title) as title')
-	 ->from($this->tableOrders)
-	 ->join($this->tableUsers, 'users.user_id = orders.user_fk', 'left')
-	 ->join($this->tableOrder_Items, 'order_items.order_fk = orders.order_id', 'left')
-	 ->join($this->tableProducts, 'products.product_id = order_items.product_fk', 'inner')
-	 ->group_by('orders.order_id')
-	 ->order_by('orders.order_id DESC')
-	 ->get()->result_array();
-	return $raw;
-	}
+    	$this->db->select('
+        	orders.order_id, orders.total_price, orders.order_address, orders.order_tel, 
+	        orders.status, orders.order_mail, orders.order_name, orders.order_date,
+    	    products.title, products.thumbnail,
+        	order_items.id, order_items.qty, order_items.price
+    	');
+		$this->db->from($this->tableOrders);
+		$this->db->join($this->tableOrder_Items, 'order_items.order_fk = orders.order_id', 'left');
+    	$this->db->join($this->tableProducts, 'products.product_id = order_items.product_fk', 'left');
+    	$this->db->order_by('orders.order_id', 'DESC');
 
+    	$query = $this->db->get();
+
+    	if (!$query) {
+    	    return false;
+    	}
+
+    	$result = [];
+    	foreach ($query->result_array() as $row) {
+    	    $order_id = $row['order_id'];
+
+    	    if (!isset($result[$order_id])) {
+    	        $result[$order_id] = [
+    	            'order_id'      => $row['order_id'],
+    	            'total_price'   => $row['total_price'],
+					'order_name'	=> $row['order_name'],
+					'order_mail'	=> $row['order_mail'],
+					'order_tel'		=> $row['order_tel'],
+    	            'order_address' => $row['order_address'],
+    	            'status'        => $row['status'],
+    	            'order_date'          => $row['order_date'],
+    	            'items'         => []
+    	        ];
+    	    }
+
+    	    if ($row['title']) { 
+    	        $result[$order_id]['items'][] = [
+					'id'		=> $row['id'],
+    	            'title'     => $row['title'],
+    	            'price'     => $row['price'],
+    	            'qty'       => $row['qty'],
+    	            'thumbnail' => $row['thumbnail']
+    	        ];	
+    	    }
+    	}
+
+    	return array_values($result);
+	}
+	//Admin
 	public function delete_order($order_id){
 		$this->db->trans_start();
 		$this->db->where('order_fk', $order_id)->delete($this->tableOrder_Items);
@@ -222,7 +257,7 @@ class DbModel extends CI_Model {
 		$this->db->trans_complete();
 		return $this->db->trans_status();
 	}
-
+	//Admin
 	public function update_order($order, $order_items){
 		$this->db->trans_start();
 		$this->db->where('order_id', $order['order_id'])->update($this->tableOrders, $order);
@@ -237,7 +272,7 @@ class DbModel extends CI_Model {
 		$this->db->trans_complete();
 		var_dump($this->db->trans_status());
 	}
-
+	//Admin
 	public function addNewProduct($product = array()){
     	$this->db->insert($this->tableProducts, $product);
 	}
@@ -245,11 +280,11 @@ class DbModel extends CI_Model {
 	public function getCategories(){
     	return $this->db->get($this->tableCategories)->result_array();
 	}
-
+	//Admin
 	public function deleteProduct($where = array()){
     	return $this->db->where($where)->delete($this->tableProducts);
 	}
-
+	//Admin
 	public function updateProduct($id, $data = array()){
     	return $this->db->where('product_id', $id)->update($this->tableProducts,$data);
 	}
@@ -294,19 +329,19 @@ class DbModel extends CI_Model {
     public function createGuestAccount($userData){
         return $this->db->insert($this->tableUsers, $userData);
     }
-
+	//Admin
     public function AddProductImages($data,$product_id){
         $data["product_fk"] = $product_id;
         return $this->db->insert($this->tableProducts_Images, $data);
 
     }
-
+	//Admin
     public function UpdateProductImages($data){
         foreach ($data as $image){
             $this->db->where('image_id', $image["image_id"])->update($this->tableProducts_Images, $image);
         }
     }
-
+	//Admin
     public function deleteProductImage($image_id){
         $this->db->where('image_id',$image_id)->delete($this->tableProducts_Images);
     }

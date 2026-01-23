@@ -54,7 +54,6 @@ methods: {
 
       const data = await res.json();
       this.category = data.categories;
-      console.log(this.category);
     } catch(err) {
     console.error("Veri alınamadı", err);
     }
