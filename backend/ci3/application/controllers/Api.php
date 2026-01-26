@@ -91,7 +91,9 @@ class Api extends CI_Controller {
 			]);
 			return;
 		}
-        $user = $this->DbModel->login($this->JSON_DATA);
+        $data = $this->DbModel->login($this->JSON_DATA);
+		$user = $data[0];
+		$address = $data[1];
         if($user){
             $this->session->set_userdata('user', [
                'user_id' => $user->user_id,
@@ -103,7 +105,8 @@ class Api extends CI_Controller {
 			   'tel' => $user->tel,
 			   'birthDate' => $user->birthDate,
 			   'info' => $user->info,
-			   'promotional' => $user->promotional
+			   'promotional' => $user->promotional,
+			   'addresses'	=> $address ?? '-'
             ]);
             switch ($user->role_fk){
 
@@ -125,7 +128,11 @@ class Api extends CI_Controller {
                 'role' 		=> $session['role'],
                 'address' 	=> $user->address,
 				'tel' 		=> $user->tel
-            ]]);
+            ],
+			'address' => [
+				'address' 	=> $address
+			]
+			]);
         }
         else{
             echo json_encode(['status' => 'error', 'message' => 'E-Mail veya Şifre Hatalı.']);
@@ -199,22 +206,45 @@ class Api extends CI_Controller {
     }
 
     public function checkLogin(){
-        if($this->session->userdata('user')){
-            $user = $this->session->userdata('user');
-            echo json_encode([
+		$session =	$this->session->userdata('user');
+        if($session){
+			$user_id = $session['user_id'];
+            // echo json_encode([
+            //     'status' 			=> 'success',
+            //     'user' => [
+            //         'user_id' 		=> $user['user_id'],
+            //         'name' 			=> $user['name'],
+            //         'mail' 			=> $user['mail'],
+            //         'address' 		=> $user['address'],
+			// 		'tel' 			=> $user['tel'],
+            //         'password' 		=> $user['password'],
+            //         'role' 			=> $user['role'],
+			// 		'birthDate'		=> $user['birthDate'],
+			// 		'info'			=> $user['info'],
+			// 		'promotional'	=> $user['promotional'],
+			// 	],
+			// 	'address' => $user['addresses']
+				
+            //     ]);
+
+			$data = $this->DbModel->check_user($user_id);
+			$user = $data[0];
+			$address = $data[1];
+			echo json_encode([
                 'status' 			=> 'success',
-                'user' => [
-                    'user_id' 		=> $user['user_id'],
-                    'name' 			=> $user['name'],
-                    'mail' 			=> $user['mail'],
-                    'address' 		=> $user['address'],
-					'tel' 			=> $user['tel'],
-                    'password' 		=> $user['password'],
-                    'role' 			=> $user['role'],
-					'birthDate'		=> $user['birthDate'],
-					'info'			=> $user['info'],
-					'promotional'	=> $user['promotional']
-                ]
+                'user' 				=> [
+                    'user_id' 			=> $user['user_id'],
+                    'name' 				=> $user['name'],
+                    'mail' 				=> $user['mail'],
+                    'address' 			=> $user['address'],
+					'tel' 				=> $user['tel'],
+                    'password' 			=> $user['password'],
+					'birthDate'			=> $user['birthDate'],
+					'info'				=> $user['info'],
+					'promotional'		=> $user['promotional'],
+				],
+				'address' 			=> $address
+				
                 ]);
         }
         else{
@@ -265,6 +295,41 @@ class Api extends CI_Controller {
             echo json_encode(['status' => 'error', 'message' => 'Profil güncellenirken bir hatayla karşılaşıldı']);
         }
     }
+	
+	public function add_address(){
+		$data = $this->JSON_DATA;
+		$user = $this->session->userdata('user');
+		if($user){
+			$result = $this->DbModel->add_address($user['user_id'], $data);
+			json_encode([$result]);
+		}
+	}
+
+	public function update_address(){
+		$data = $this->JSON_DATA;
+		$user = $this->session->userdata('user');
+		if($user){
+			$this->DbModel->update_address($data);
+		}
+	}
+
+	public function delete_address($id){
+		$user = $this->session->userdata('user');
+		if($user){
+			$result = $this->DbModel->delete_address($id);
+			json_encode([$result]);
+		
+		}
+	}
+
+	public function set_initial_address(){
+		$user = $this->session->userdata('user');
+		$data = $this->JSON_DATA;
+		var_dump($data);
+		if($user){
+			$this->DbModel->set_initial_address($data);
+		}
+	}
 
     // PRODUCT FUNCTIONS
 
@@ -466,7 +531,7 @@ class Api extends CI_Controller {
 
     public function orders(){
 		$user = $this->session->userdata('user');
-		if($user['role'] == 1){
+		if(($user['role'] ?? 0) == 1){
 			$orders = $this->DbModel->get_all_orders();
 			echo json_encode([
 				'status' => 'success',
@@ -476,7 +541,6 @@ class Api extends CI_Controller {
 		}
 		if($user){
 
-            $user = $this->session->userdata('user');
             $user_id = $user['user_id'];
             $orders = $this->DbModel->get_orders($user_id);
 		
@@ -496,7 +560,7 @@ class Api extends CI_Controller {
 
     public function get_all_orders(){
 		$user = $this->session->userdata('user');
-		if($user['role'] == 1){
+		if(($user['role'] ?? 0) == 1){
 			$orders = $this->DbModel->get_all_orders();
 			echo json_encode([
 				'status' => 'success',
@@ -607,5 +671,28 @@ class Api extends CI_Controller {
 			'message' 			=> 'RateLimit Kayıtları Başarıyla Silindi.',
 			'affected_rows' 	=> $rows
 		]);
+	}
+
+	public function deneme($id){
+		$data = $this->DbModel->check_user($id);
+		$user = $data[0];
+		$address = $data[1];
+		echo json_encode([
+                'status' 			=> 'success',
+                'user' 				=> [
+                    'user_id' 			=> $user['user_id'],
+                    'name' 				=> $user['name'],
+                    'mail' 				=> $user['mail'],
+                    'address' 			=> $user['address'],
+					'tel' 				=> $user['tel'],
+                    'password' 			=> $user['password'],
+                    'role'	 			=> $user['role_fk'],
+					'birthDate'			=> $user['birthDate'],
+					'info'				=> $user['info'],
+					'promotional'		=> $user['promotional'],
+				],
+				'address' 			=> $address
+				
+                ]);
 	}
 }

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import axios from 'axios'
+import { useUserStore } from '@/store/UserStore'
 import HomeView from '../views/HomeView.vue'
 import AboutView from '../views/AboutView.vue'
 import CategoryView from '../views/CategoryView.vue'
@@ -19,6 +20,7 @@ import CheckoutView from '../views/CheckoutView.vue'
 import OrderDetailView from '../views/OrderDetailView.vue'
 import DashboardOrderDetailView from '../views/DashboardOrderDetailView.vue'
 import DashboardView from '@/views/DashboardView.vue'
+import AddressView from '@/views/AddressView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -141,6 +143,12 @@ const routes: Array<RouteRecordRaw> = [
     name:'Checkout',
     component:CheckoutView,
     meta: {showLayout:false}
+  },
+  {
+    path:'/address',
+    name:'Address',
+    component:AddressView,
+    meta:{showLayout:false, requiresAuth:true}
   }
 ]
 
@@ -152,8 +160,9 @@ const router = createRouter({
 router.beforeEach(async (to,from,next) =>{
   if(to.meta.requiresAuth){
     try{
-      const res = await axios.post('http://localhost:8080/api/checkLogin',{},{withCredentials:true})
-      if(res.data.status === 'success'){
+      const userStore = useUserStore();
+      userStore.authVerify();
+      if(userStore.status === 'success'){
         next();
       }
       else{

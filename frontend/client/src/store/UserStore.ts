@@ -1,5 +1,11 @@
 import {defineStore} from 'pinia';
 import axios from "axios";
+
+interface Address{
+    address:string,
+    city:string,
+    district:string
+}
 interface User {
   user_id: number;
   mail: string;
@@ -19,19 +25,25 @@ export const useUserStore = defineStore('User',{
     state: () => ({
         status:"undefined",
         user: null as User | null,
-        cart:[] as any[]
+        cart:[] as any[],
+        address: null as Address | null
     }),
     actions:{
         authVerify() {
             axios.get("http://localhost:8080/api/checkLogin", { withCredentials: true })
             .then(res => {
             if (res.data.status === 'success') {
-            this.user = res.data.user; 
-            this.status = 'success';
+                console.log(res);
+                this.address = res.data.address
+                this.user = res.data.user; 
+                this.status = res.data.status; 
+                console.log(this.address);   
+                console.log(this.user);   
+                
             }
             else{
             this.user = null;
-            this.status = 'error';
+            this.status = res.data.status;
             }
             })
             .catch(err => console.error("Kullanıcı doğrulama hatası:", err));

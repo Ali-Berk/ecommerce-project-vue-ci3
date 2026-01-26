@@ -7,6 +7,7 @@ class DbModel extends CI_Model {
     public $tableProducts_Images;
     public $tableProducts;
     public $tableCategories;
+	public $tableAddresses;
     
     protected $cache_file_products = 'products_cache.php';
     
@@ -19,7 +20,7 @@ class DbModel extends CI_Model {
         $this->tableProducts_Images = 'product_images';
         $this->tableProducts = 'products';
         $this->tableCategories = 'categories';
-
+		$this->tableAddresses = 'addresses';
     }
 	
     public function get_all(){
@@ -57,7 +58,10 @@ class DbModel extends CI_Model {
     	if($query->num_rows() == 1){
         	$user = $query->row(); 
 	        if($data['password'] == $user->password){
-    	        return $user; 
+				$this->db->where('user_fk',$user->user_id);
+				$addresses = $this->db->get($this->tableAddresses)->result();
+
+    	        return [$user,$addresses]; 
         	}
     	}
     	return false;
@@ -67,9 +71,41 @@ class DbModel extends CI_Model {
         $this->db->insert($this->tableUsers, $user);
     }
 
+	public function check_user($user_id){
+		$user = $this->db->where('user_id',$user_id)->get($this->tableUsers)->row_array();
+		$this->db->where('user_fk',$user_id);
+		$addresses = $this->db->get($this->tableAddresses)->result_array();
+		return [$user, $addresses];
+	}
+
     public function update_user($user_id, $data = array()){
         return $this->db->where('user_id', $user_id)->update('users', $data);
     }
+
+	public function add_address($user_id, $address = array()){
+		$data = $address;
+		$data['user_fk'] = $user_id;
+		$this->db->insert($this->tableAddresses,$data);
+		return $this->db->error();
+	}
+
+	public function update_address($data = array()){
+		$this->db->where('id',$data['id'])->update($this->tableAddresses,$data);
+		return $this->db->error();
+	}
+
+	public function delete_address($id){
+		$this->db->where('id',$id)->delete($this->tableAddresses);
+		return $this->db->error();
+	}
+
+	public function set_initial_address($data = array()){
+		$full_address = $data['address'].'-'.$data['district'].'/'.$data['city'];
+		var_dump($full_address);
+		$this->db->where('user_id',$data['user_fk'])->update($this->tableUsers,['address' => $full_address]);
+		$this->db->where('default',1)->update($this->tableAddresses, ['default' => 0]);
+		$this->db->where('id',$data['id'])->update($this->tableAddresses, ['default' => 1]);
+	}
 
     public function get_products(){
         $cache_file = APPPATH.'cache/products_cache.php';

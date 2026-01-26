@@ -1,6 +1,6 @@
 <template>
   <section>
-<Navbar v-if="category" :category="category" :user="this.UserStore.user" />
+<Navbar id="navbarComponent" v-if="category" :category="category" :user="this.UserStore.user" />
 <Carousel v-if="category && $route.meta.showLayout" :category="category" />
 <router-view v-if="category" :category="this.ProductStore" :user="this.UserStore.user"/>
     <!-- <Footer/> -->
@@ -67,7 +67,6 @@ methods: {
 * {
   box-sizing: border-box;
 }
-
 #categoryCarousel{
   display: grid;
 }

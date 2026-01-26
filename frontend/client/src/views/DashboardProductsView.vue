@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid p-4">
+  <div class="container-fluid p-4 mt-6">
     
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
@@ -282,5 +282,9 @@ export default {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.mt-6 {
+  margin-top: 100px;
 }
 </style>
