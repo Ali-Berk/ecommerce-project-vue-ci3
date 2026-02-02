@@ -325,7 +325,6 @@ class Api extends CI_Controller {
 	public function set_initial_address(){
 		$user = $this->session->userdata('user');
 		$data = $this->JSON_DATA;
-		var_dump($data);
 		if($user){
 			$this->DbModel->set_initial_address($data);
 		}
@@ -525,8 +524,6 @@ class Api extends CI_Controller {
 				'message'	=> 'Bilgiler Hatalı Girildi.',
 			]);
 		}
-        var_dump($itemsData);
-
     }
 
     public function orders(){

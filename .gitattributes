@@ -1,7 +1,11 @@
-# --- FRONTEND (Vue.js) ---
+# --- FRONTEND (Vue.js & TypeScript) ---
 frontend/client/node_modules/* linguist-vendored
 frontend/client/dist/* linguist-vendored
 frontend/client/public/* linguist-vendored
+*.vue linguist-language=Vue
+*.ts linguist-language=TypeScript
+*.tsx linguist-language=TypeScript
+*.d.ts linguist-vendored
 
 # --- BACKEND (CodeIgniter 3) ---
 backend/ci3/system/* linguist-vendored
@@ -11,6 +15,8 @@ backend/ci3/application/cache/* linguist-vendored
 backend/ci3/application/logs/* linguist-vendored
 backend/ci3/application/config/* linguist-vendored
 backend/ci3/application/third_party/* linguist-vendored
+backend/ci3/vendor/* linguist-vendored
+backend/ci3/application/libraries/* linguist-vendored
 
 # --- GENEL ---
 *.min.js linguist-vendored

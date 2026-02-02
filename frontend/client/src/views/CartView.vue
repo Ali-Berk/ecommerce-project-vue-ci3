@@ -29,16 +29,16 @@
                 <div style="width: 100px;" class="text-end">FİYAT</div>
                 <div style="width: 50px;"></div> </div>
 
-              <div v-for="item in UserStore.cart" :key="item.id" class="cart-item-row p-3 px-4 border-bottom d-flex flex-wrap flex-md-nowrap align-items-center gap-3">
+              <div v-for="item in UserStore.cart" :key="item.product_id" class="cart-item-row p-3 px-4 border-bottom d-flex flex-wrap flex-md-nowrap align-items-center gap-3">
                 
                 <div class="img-wrapper rounded-3 border bg-white flex-shrink-0 position-relative">
-                   <router-link :to="`/product/${item.id}`"> <img :src="item.thumbnail" :alt="item.title" class="img-fluid object-fit-contain w-100 h-100">
+                   <router-link :to="`/product/${item.product_id}`"> <img :src="item.thumbnail" :alt="item.title" class="img-fluid object-fit-contain w-100 h-100">
                    </router-link>
                 </div>
 
                 <div class="flex-grow-1" style="min-width: 200px;">
                   <h6 class="fw-bold mb-1 text-dark">
-                    <router-link :to="`/product/${item.id}`" class="text-decoration-none text-dark">{{ item.title }}</router-link>
+                    <router-link :to="`/product/${item.product_id}`" class="text-decoration-none text-dark">{{ item.title }}</router-link>
                   </h6>
                   <small class="text-muted">Birim Fiyat: {{ item.price }} ₺</small>
                 </div>
@@ -49,7 +49,7 @@
                       <i class="bi bi-dash"></i>
                     </button>
                     <input type="text" class="form-control text-center border-0 bg-white p-0 fw-bold" :value="item.qty" readonly>
-                    <button class="btn btn-white border-0 px-2" type="button" @click="increaseQty(item)">
+                    <button class="btn btn-white border-0 px-2" type="button" @click="UserStore.addToCart(item)">
                       <i class="bi bi-plus"></i>
                     </button>
                   </div>
@@ -60,7 +60,7 @@
                 </div>
 
                 <div class="remove-col text-end">
-                  <button class="btn btn-link text-muted p-0 hover-danger" @click="removeItem(item)" title="Sepetten Sil">
+                  <button class="btn btn-link text-muted p-0 hover-danger" @click="UserStore.removeFromCart(item.product_id)" title="Sepetten Sil">
                     <i class="bi bi-trash3 fs-5"></i>
                   </button>
                 </div>
@@ -139,7 +139,6 @@ export default defineComponent({
   name: 'CartView',
   setup() {
     const UserStore = useUserStore();
-
     const increaseQty = (item: any) => {
       item.qty += 1;
     };
@@ -148,18 +147,11 @@ export default defineComponent({
       item.qty = Math.max(1, item.qty - 1);
     };
 
-    const removeItem = (item: any) => {
-      const index = UserStore.cart.indexOf(item);
-      if (index > -1) {
-        UserStore.cart.splice(index, 1);
-      }
-    };
-
     const totalPrice = computed(() =>
       UserStore.cart.reduce((acc, item) => acc + item.price * item.qty, 0).toFixed(2)
     );
 
-    return { UserStore, increaseQty, decreaseQty, removeItem, totalPrice };
+    return { UserStore, increaseQty, decreaseQty, totalPrice };
   }
 });
 </script>
