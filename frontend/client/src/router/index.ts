@@ -161,8 +161,9 @@ router.beforeEach(async (to,from,next) =>{
   if(to.meta.requiresAuth){
     try{
       const userStore = useUserStore();
-      userStore.authVerify();
-      if(userStore.status === 'success'){
+      await userStore.authVerify();
+      const user = localStorage.getItem('user');
+      if(user){
         next();
       }
       else{

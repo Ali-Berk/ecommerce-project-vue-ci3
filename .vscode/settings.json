@@ -1,5 +1,8 @@
 {
     "cSpell.ignoreWords": [
         "Selectedproducts"
+    ],
+    "code-debuger.promptShownExtensions": [
+        "rogalmic.bash-debug"
     ]
 }

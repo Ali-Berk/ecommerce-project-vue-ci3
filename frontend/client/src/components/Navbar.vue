@@ -93,23 +93,24 @@
         </div>
 
         <div v-else class="flex-grow-1 overflow-auto p-3">
-          <div v-for="item in UserStore.cart" :key="item.id" class="cart-item-card d-flex align-items-center mb-3 p-2">
+          <div v-for="item in UserStore.cart" :key="item.product_id" class="cart-item-card d-flex align-items-center mb-3 p-2">
             <div class="cart-img-wrapper">
               <img :src="item.thumbnail" alt="Ürün" class="cart-img">
             </div>
             <div class="flex-grow-1 ms-3">
               <div class="d-flex justify-content-between align-items-start">
                 <h6 class="mb-1 text-truncate fw-bold" style="max-width: 150px; font-size:0.95rem;">{{ item.title }}</h6>
-                <button class="btn btn-link text-muted p-0 ms-2 hover-danger" @click="removeItem(item)">
+                <button class="btn btn-link text-muted p-0 ms-2 hover-danger" @click="UserStore.removeFromCart(item)">
+                  <!-- removeItem(item) -->
                    <i class="bi bi-trash3"></i>
                 </button>
               </div>
               <small class="text-muted d-block mb-2">{{ item.price }} TL</small>
               <div class="d-flex justify-content-between align-items-center">
                 <div class="qty-selector d-flex align-items-center border rounded-pill px-2 py-1">
-                  <button class="btn btn-sm btn-icon p-0" @click="item.qty = Math.max(1, item.qty - 1)">-</button>
+                  <button class="btn btn-sm btn-icon p-0" @click="UserStore.decreaseCart(item)">-</button>
                   <input type="number" v-model.number="item.qty" class="qty-input mx-2" min="1" readonly>
-                  <button class="btn btn-sm btn-icon p-0" @click="item.qty += 1">+</button>
+                  <button class="btn btn-sm btn-icon p-0" @click="UserStore.addToCart(item)">+</button>
                 </div>
                 <span class="fw-bold fs-6">{{ (item.qty * item.price).toFixed(2) }} TL</span>
               </div>
@@ -169,13 +170,9 @@ export default {
       axios.get('http://localhost:8080/api/logout', { withCredentials: true })
         .catch(err => console.log(err))
         .then(() => location.reload());
+      this.UserStore.sessionDestroy();
     },
-    removeItem(item) {
-      const index = this.UserStore.cart.indexOf(item);
-      if (index > -1) {
-        this.UserStore.cart.splice(index, 1);
-      }
-    },
+
     handleScroll() {
       this.isScrolled = window.scrollY > 50;
     }

@@ -209,27 +209,11 @@ class Api extends CI_Controller {
 		$session =	$this->session->userdata('user');
         if($session){
 			$user_id = $session['user_id'];
-            // echo json_encode([
-            //     'status' 			=> 'success',
-            //     'user' => [
-            //         'user_id' 		=> $user['user_id'],
-            //         'name' 			=> $user['name'],
-            //         'mail' 			=> $user['mail'],
-            //         'address' 		=> $user['address'],
-			// 		'tel' 			=> $user['tel'],
-            //         'password' 		=> $user['password'],
-            //         'role' 			=> $user['role'],
-			// 		'birthDate'		=> $user['birthDate'],
-			// 		'info'			=> $user['info'],
-			// 		'promotional'	=> $user['promotional'],
-			// 	],
-			// 	'address' => $user['addresses']
-				
-            //     ]);
 
 			$data = $this->DbModel->check_user($user_id);
 			$user = $data[0];
 			$address = $data[1];
+			$cart = $data[2];
 			echo json_encode([
                 'status' 			=> 'success',
                 'user' 				=> [
@@ -242,8 +226,10 @@ class Api extends CI_Controller {
 					'birthDate'			=> $user['birthDate'],
 					'info'				=> $user['info'],
 					'promotional'		=> $user['promotional'],
+					'role'				=> $user['role_fk'],
 				],
-				'address' 			=> $address
+				'address' 				=> $address,
+				'cart'					=> $cart
 				
                 ]);
         }
@@ -597,6 +583,20 @@ class Api extends CI_Controller {
 			]);
 		}
 	}
+
+	//CARD FUNCTIONS
+	
+	public function add_to_cart($id){
+		$rawData = $this->JSON_DATA;
+		$this->DbModel->add_to_cart($id,$rawData);
+	}
+
+	public function remove_from_cart($id){
+		$product_id = $this->JSON_DATA;
+		$query = $this->DbModel->remove_from_cart($id,$product_id[0]);
+	}
+
+
 
     // MISC FUNCTIONS
 

@@ -8,6 +8,8 @@ class DbModel extends CI_Model {
     public $tableProducts;
     public $tableCategories;
 	public $tableAddresses;
+	public $tableCart;
+	public $tableCartItems;
     
     protected $cache_file_products = 'products_cache.php';
     
@@ -21,6 +23,8 @@ class DbModel extends CI_Model {
         $this->tableProducts = 'products';
         $this->tableCategories = 'categories';
 		$this->tableAddresses = 'addresses';
+		$this->tableCart = 'cart';
+		$this->tableCartItems = 'cart_items';
     }
 	
     public function get_all(){
@@ -75,7 +79,14 @@ class DbModel extends CI_Model {
 		$user = $this->db->where('user_id',$user_id)->get($this->tableUsers)->row_array();
 		$this->db->where('user_fk',$user_id);
 		$addresses = $this->db->get($this->tableAddresses)->result_array();
-		return [$user, $addresses];
+		$cart = $this->db->select("products.product_id, products.title, products.price, products.thumbnail, cart_items.qty")
+		->from($this->tableCartItems)
+		->join($this->tableProducts, 'cart_items.product_fk = products.product_id', 'left')
+		->join($this->tableCart, 'cart.id = cart_items.cart_fk')
+		->where('cart.user_fk', $user_id)
+		->get()->result_array();
+		return [$user, $addresses, $cart];
+
 	}
 
     public function update_user($user_id, $data = array()){
@@ -184,6 +195,64 @@ class DbModel extends CI_Model {
 
         return $product;
     }
+	
+	public function add_to_cart($userId, $rawItemData = array()){
+		$query = $this->db->get_where($this->tableCart, ['user_fk' => $userId]);
+		$existing_cart = $query->row();
+		if(!$existing_cart){
+			$this->db->insert($this->tableCart, ['user_fk' => $userId]);
+			$cart_id = $this->db->insert_id();
+		}
+		else{
+			$cart_id = $existing_cart->id;
+		}
+		$existing_item = $this->db->get_where($this->tableCartItems,
+		 ['product_fk' => $rawItemData['product_id'],
+		  'cart_fk' => $cart_id,])->row();
+		if($existing_item){
+			$insertData = [
+				'product_fk' 	=> $rawItemData['product_id'],
+				'qty'			=> $rawItemData['qty'] ?? 1,
+				'cart_fk'		=> $cart_id
+				];
+			$this->db->where('cart_fk',$cart_id)->where('product_fk', $rawItemData['product_id'])->update($this->tableCartItems, $insertData);
+		}
+		else{
+			$insertData = [
+				'product_fk' 	=> $rawItemData['product_id'],
+				'qty'			=> $rawItemData['qty'] ?? 1,
+				'cart_fk'		=> $cart_id
+			];
+			$this->db->insert($this->tableCartItems, $insertData);
+		}
+	}
+
+	public function remove_from_cart($user_id, $product_id){
+        if (is_array($product_id)) {
+            $product_id = $product_id['product_id'] ?? reset($product_id);
+        }
+        if (empty($product_id) || !is_numeric($product_id)) {
+            return false;
+        }
+        $this->db->trans_start();
+        $query = $this->db->get_where($this->tableCart, ['user_fk' => $user_id]);
+        $existing_cart = $query->row_array();
+        if(!$existing_cart){
+            return false;
+        }
+        $existing_item = $this->db->get_where($this->tableCartItems, [
+            'product_fk' => $product_id,
+            'cart_fk'    => $existing_cart['id']
+        ])->row();
+        if(!$existing_item){
+            return false;
+        }
+        $this->db->where('cart_fk', $existing_cart['id'])
+                 ->where('product_fk', $product_id)
+                 ->delete($this->tableCartItems);
+        $this->db->trans_complete();
+        return $this->db->trans_status();
+	}
 
 	public function get_orders($id){
     	$this->db->select('
@@ -365,6 +434,9 @@ class DbModel extends CI_Model {
     public function createGuestAccount($userData){
         return $this->db->insert($this->tableUsers, $userData);
     }
+
+
+
 	//Admin
     public function AddProductImages($data,$product_id){
         $data["product_fk"] = $product_id;
