@@ -1,7 +1,44 @@
 <template>
   <section class="container my-5">
-    <h1 class="mb-5 category-title">{{ category_name }}</h1>
-    
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+      <h1 class="category-title mb-0">{{ category_name }}</h1>
+      <span class="text-muted small" v-if="Selectedproducts.length > 0">{{ Selectedproducts.length }} ürün listelendi</span>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-5 p-3 bg-white rounded-4">
+      <div class="row g-3 align-items-center">
+        <div class="col-lg-4 col-md-6">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0 border-light"><i class="bi bi-search text-muted"></i></span>
+            <input type="text" class="form-control bg-light border-start-0 border-light" placeholder="Ürün ara...">
+          </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+          <div class="d-flex gap-2">
+            <input type="number" class="form-control bg-light border-light" placeholder="Min TL">
+            <input type="number" class="form-control bg-light border-light" placeholder="Max TL">
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+          <select class="form-select bg-light border-light">
+            <option selected>Sıralama: Önerilen</option>
+            <option value="1">Fiyat: Artan</option>
+            <option value="2">Fiyat: Azalan</option>
+            <option value="3">En Yeniler</option>
+          </select>
+        </div>
+
+        <div class="col-lg-2 col-md-6">
+          <div class="form-check form-switch d-flex justify-content-md-end justify-content-start gap-2 ps-0">
+            <input class="form-check-input ms-0" type="checkbox" role="switch" id="stockSwitch">
+            <label class="form-check-label small pt-1 text-muted" for="stockSwitch">Sadece Stoktakiler</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div v-if="ProductStore.status == 'success'" class="row g-4 mb-5">
       <div 
         v-for="(product, index) in Selectedproducts" 
@@ -133,8 +170,6 @@ export default defineComponent({
     generateRecommendations() {
       let allProducts = [...this.ProductStore.products];
       
-      // allProducts = allProducts.filter(p => p.category !== this.category_name);
-      
       allProducts = allProducts.filter(p => p.active == 1);
 
       for (let i = allProducts.length - 1; i > 0; i--) {
@@ -256,5 +291,16 @@ export default defineComponent({
 
 .recommendations-section {
   padding-top: 2rem;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #e2e8f0;
+  box-shadow: none;
+  background-color: #fff !important;
+}
+
+.form-check-input:checked {
+  background-color: #333;
+  border-color: #333;
 }
 </style>
