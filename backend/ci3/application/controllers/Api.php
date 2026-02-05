@@ -222,7 +222,6 @@ class Api extends CI_Controller {
                     'mail' 				=> $user['mail'],
                     'address' 			=> $user['address'],
 					'tel' 				=> $user['tel'],
-                    'password' 			=> $user['password'],
 					'birthDate'			=> $user['birthDate'],
 					'info'				=> $user['info'],
 					'promotional'		=> $user['promotional'],
@@ -670,26 +669,16 @@ class Api extends CI_Controller {
 		]);
 	}
 
-	public function deneme($id){
-		$data = $this->DbModel->check_user($id);
-		$user = $data[0];
-		$address = $data[1];
-		echo json_encode([
-                'status' 			=> 'success',
-                'user' 				=> [
-                    'user_id' 			=> $user['user_id'],
-                    'name' 				=> $user['name'],
-                    'mail' 				=> $user['mail'],
-                    'address' 			=> $user['address'],
-					'tel' 				=> $user['tel'],
-                    'password' 			=> $user['password'],
-                    'role'	 			=> $user['role_fk'],
-					'birthDate'			=> $user['birthDate'],
-					'info'				=> $user['info'],
-					'promotional'		=> $user['promotional'],
-				],
-				'address' 			=> $address
-				
-                ]);
-	}
+    public function search(){
+        $searchTerm = $this->input->get('q', TRUE);
+        $result = $this->DbModel->search($searchTerm);
+        if($result){
+            echo json_encode([
+                'status'        => 'success',
+                'message'       => 'Ürünler Başarıyla Listelendi',
+                'data'          => $result
+            ]);
+        }
+    }
+
 }

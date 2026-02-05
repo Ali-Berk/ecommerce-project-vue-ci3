@@ -453,4 +453,12 @@ class DbModel extends CI_Model {
     public function deleteProductImage($image_id){
         $this->db->where('image_id',$image_id)->delete($this->tableProducts_Images);
     }
+
+	public function search($query){
+		// $result = $this->db->query("SELECT * FROM products WHERE active = 1 AND title LIKE ?", ['%' . $query . '%'])->result_array();
+		$this->db->where('active', 1);
+		$this->db->like('title', $query);
+		$result = $this->db->get($this->tableProducts)->result_array();
+		return $result;
+	}
 }

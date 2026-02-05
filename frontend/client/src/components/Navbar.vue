@@ -69,12 +69,44 @@
 
     <transition name="slide-down">
       <div v-if="searchActive" class="searchbar-container" :class="{'scrolled-search': isScrolled}">
-        <div class="container d-flex align-items-center h-100">
+        <div class="container position-relative d-flex align-items-center h-100">
           <i class="bi bi-search fs-5 text-muted me-3"></i>
-          <input type="text" class="form-control form-control-lg border-0 shadow-none bg-transparent" placeholder="Ne aramıştınız?" v-model="searchQuery" style="font-size: 1.2rem;"/>
+          <input type="text" class="form-control form-control-lg border-0 shadow-none bg-transparent" placeholder="Ne aramıştınız?" v-model="searchQuery" style="font-size: 1.2rem;" ref="searchInput"/>
           <button class="btn btn-icon rounded-circle" @click="toggleSearchBar">
             <i class="bi bi-x-lg"></i>
           </button>
+
+          <div v-if="searchQuery" class="search-results-wrapper shadow-lg rounded-bottom">
+            <div v-if="isLoading" class="p-3 text-center text-muted">
+              <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+              <small>Aranıyor...</small>
+            </div>
+
+            <div v-else-if="searchResults.length === 0 && searchQuery.length > 1" class="p-3 text-center text-muted">
+              <small>Sonuç bulunamadı.</small>
+            </div>
+            <div v-else class="results-content">
+              <div class="results-header bg-light border-bottom p-2 px-3">
+                <small class="fw-bold text-secondary">
+                  <i class="bi bi-list-ul me-1"></i>
+                  {{ searchResults.length }} adet ürün listelendi
+                </small>
+              </div>
+              <ul class="list-group list-group-flush result-list">
+                <li v-for="product in searchResults" :key="product.product_id" class="list-group-item list-group-item-action p-2 border-0 border-bottom-dashed">
+                  <a href="#" @click.prevent="goToProduct(product.product_id)" class="d-flex align-items-center text-decoration-none text-dark p-1">
+                    <div class="me-3 image-holder">
+                       <img :src="getImage(product)" class="w-100 h-100 rounded-3 object-fit-cover shadow-sm" alt="product">
+                    </div>
+                    <div>
+                      <h6 class="mb-1 fw-bold text-dark text-truncate" style="max-width: 250px;">{{ product.title }}</h6>
+                      <small class="text-primary fw-bold">{{ product.price }} TL</small>
+                    </div>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </transition>
@@ -93,24 +125,23 @@
         </div>
 
         <div v-else class="flex-grow-1 overflow-auto p-3">
-          <div v-for="item in UserStore.cart" :key="item.product_id" class="cart-item-card d-flex align-items-center mb-3 p-2">
+          <div v-for="item in UserStore.cart" :key="item.id" class="cart-item-card d-flex align-items-center mb-3 p-2">
             <div class="cart-img-wrapper">
               <img :src="item.thumbnail" alt="Ürün" class="cart-img">
             </div>
             <div class="flex-grow-1 ms-3">
               <div class="d-flex justify-content-between align-items-start">
                 <h6 class="mb-1 text-truncate fw-bold" style="max-width: 150px; font-size:0.95rem;">{{ item.title }}</h6>
-                <button class="btn btn-link text-muted p-0 ms-2 hover-danger" @click="UserStore.removeFromCart(item)">
-                  <!-- removeItem(item) -->
+                <button class="btn btn-link text-muted p-0 ms-2 hover-danger" @click="removeItem(item)">
                    <i class="bi bi-trash3"></i>
                 </button>
               </div>
               <small class="text-muted d-block mb-2">{{ item.price }} TL</small>
               <div class="d-flex justify-content-between align-items-center">
                 <div class="qty-selector d-flex align-items-center border rounded-pill px-2 py-1">
-                  <button class="btn btn-sm btn-icon p-0" @click="UserStore.decreaseCart(item)">-</button>
+                  <button class="btn btn-sm btn-icon p-0" @click="item.qty = Math.max(1, item.qty - 1)">-</button>
                   <input type="number" v-model.number="item.qty" class="qty-input mx-2" min="1" readonly>
-                  <button class="btn btn-sm btn-icon p-0" @click="UserStore.addToCart(item)">+</button>
+                  <button class="btn btn-sm btn-icon p-0" @click="item.qty += 1">+</button>
                 </div>
                 <span class="fw-bold fs-6">{{ (item.qty * item.price).toFixed(2) }} TL</span>
               </div>
@@ -144,7 +175,10 @@ export default {
     return {
       searchActive: false,
       searchQuery: '',
-      isScrolled: false, 
+      isScrolled: false,
+      timerId: null,
+      searchResults: [],
+      isLoading: false
     };
   },
   computed: {
@@ -156,15 +190,58 @@ export default {
       return this.UserStore.cart.reduce((acc, item) => acc + (item.price * item.qty), 0).toFixed(2);
     }
   },
+  watch: {
+    searchQuery(newValue){
+      if(this.timerId) clearTimeout(this.timerId);
+      
+      if(newValue.trim().length < 2) {
+        this.searchResults = [];
+        return;
+      }
+      this.timerId = setTimeout(()=>{
+        this.sendToBackend(newValue)
+      }, 300); 
+    }
+  },
   methods: {
     toggleSearchBar() {
       this.searchActive = !this.searchActive;
       if (this.searchActive) {
         setTimeout(() => {
-          const input = document.querySelector('.searchbar-container input');
-          if(input) input.focus();
+          if(this.$refs.searchInput) this.$refs.searchInput.focus();
         }, 100);
+      } else {
+        this.searchQuery = '';
+        this.searchResults = [];
       }
+    },
+    async sendToBackend(query){
+      this.isLoading = true;
+      try {
+        const response = await axios.get(`http://localhost:8080/api/search?q=${query}`);
+        if(response.data && response.data.status === 'success'){
+          this.searchResults = response.data.data;
+        } else {
+          this.searchResults = [];
+        }
+      } catch (error) {
+        console.error("Search Error:", error);
+        this.searchResults = [];
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    goToProduct(id){
+      this.searchActive = false;
+      this.searchQuery = '';
+      this.searchResults = [];
+      this.$router.push(`/product/${id}`);
+    },
+    getImage(product){
+        if(product.images && product.images.length > 0 && product.images[0].image_url){
+            return product.images[0].image_url;
+        }
+        return product.thumbnail || 'https://via.placeholder.com/50';
     },
     logout() {
       axios.get('http://localhost:8080/api/logout', { withCredentials: true })
@@ -172,14 +249,18 @@ export default {
         .then(() => location.reload());
       this.UserStore.sessionDestroy();
     },
-
+    removeItem(item) {
+      const index = this.UserStore.cart.indexOf(item);
+      if (index > -1) {
+        this.UserStore.cart.splice(index, 1);
+      }
+    },
     handleScroll() {
       this.isScrolled = window.scrollY > 50;
     }
   },
   mounted() {
     window.addEventListener('scroll', this.handleScroll);
-
     const offcanvasEl = document.getElementById('cartOffcanvas');
     if(offcanvasEl){
         offcanvasEl.addEventListener('hidden.bs.offcanvas', () => {
@@ -195,63 +276,22 @@ export default {
 </script>
 
 <style scoped>
-.custom-navbar {
-  top: 0;
-  left: 0;
-  width: 100%;
-  backdrop-filter: blur(5px);
-  background-color: rgba(255, 255, 255, 0.98);
-  border-bottom: 1px solid rgba(0,0,0,0.05);
-  
-  /* Animasyon Geçişi */
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-}
-
-.scrolled-navbar {
-  top: 20px;
-  width: 90%; 
-  left: 50%;
-  transform: translateX(-50%);
-  border-radius: 50px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255,255,255,0.5);
-  background-color: rgba(255, 255, 255, 0.90) !important;
-  backdrop-filter: blur(15px);
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-
-.nav-logo {
-  height: 45px;
-  object-fit: contain;
-  transition: all 0.3s ease;
-}
-.scrolled-navbar .nav-logo {
-  height: 35px; 
-}
-.searchbar-container {
-  position: fixed;
-  top: 85px; 
-  left: 0;
-  right: 0;
-  height: 70px;
-  background-color: #fff;
-  border-bottom: 1px solid #eee;
-  z-index: 90;
-  transition: top 0.4s ease;
-}
-
-.scrolled-search {
-  top: 80px; 
-  width: 90%;
-  left: 50%;
-  transform: translateX(-50%);
-  border-radius: 0 0 30px 30px;
-  box-shadow: 0 15px 30px rgba(0,0,0,0.05);
-}
-
+.custom-navbar {top: 0; left: 0; width: 100%;backdrop-filter: blur(10px);background-color: rgba(255, 255, 255, 0.98);border-bottom: 1px solid rgba(0,0,0,0.05);transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);padding-top: 1rem; padding-bottom: 1rem;}
+.scrolled-navbar {top: 15px; width: 90%; left: 50%;transform: translateX(-50%);border-radius: 50px;box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);border: 1px solid rgba(255,255,255,0.5);background-color: rgba(255, 255, 255, 0.95) !important;padding-top: 0.5rem; padding-bottom: 0.5rem;}
+.nav-logo { height: 45px; object-fit: contain; transition: all 0.3s ease; }
+.scrolled-navbar .nav-logo { height: 35px; }
+.searchbar-container {position: fixed;top: 85px;left: 0; right: 0;height: 70px;background-color: #fff;border-bottom: 1px solid #eee;z-index: 900;transition: top 0.4s ease;box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);}
+.scrolled-search {top: 75px;width: 90%; left: 50%;transform: translateX(-50%);border-radius: 0 0 20px 20px;box-shadow: 0 15px 30px rgba(0,0,0,0.05);}
+.search-results-wrapper {position: absolute;top: 100%;left: 0.75rem;right: 0.75rem;background-color: #ffffff;z-index: 1050;border-top: 1px solid #f0f0f0;border-radius: 0 0 15px 15px;box-shadow: 0 10px 25px rgba(0,0,0,0.1);overflow: hidden;animation: fadeIn 0.2s ease-in-out;}
+.result-list { max-height: 350px; overflow-y: auto; }
+.result-list::-webkit-scrollbar { width: 5px; }
+.result-list::-webkit-scrollbar-thumb { background-color: #dee2e6; border-radius: 10px; }
+.image-holder { width: 50px; height: 50px; flex-shrink: 0; background-color: #f8f9fa; border-radius: 8px; }
+.border-bottom-dashed { border-bottom: 1px dashed #eee !important; }
+.list-group-item:last-child { border-bottom: none !important; }
+.list-group-item-action:hover { background-color: #f8f9fa; padding-left: 0.75rem !important; transition: all 0.2s ease; }
+@keyframes fadeIn {from { opacity: 0; transform: translateY(-10px); }to { opacity: 1; transform: translateY(0); }}
+.object-fit-cover { object-fit: cover; }
 .custom-nav-link { color: #333 !important; font-size: 0.95rem; position: relative; transition: color 0.3s ease; }
 .custom-nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 0px; left: 0; background-color: #000; transition: width 0.3s ease; }
 .custom-nav-link:hover::after, .custom-nav-link.router-link-active::after { width: 100%; }
